@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3C5E5F10184167CB00424C89 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C5E5F0F184167CB00424C89 /* main.cpp */; };
 		3C5E5F12184167CB00424C89 /* Assignment_3.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C5E5F11184167CB00424C89 /* Assignment_3.1 */; };
+		6CF7A13E18416ECE008F1258 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CF7A13D18416ECE008F1258 /* OpenGL.framework */; };
+		6CF7A14018416F0B008F1258 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CF7A13F18416F0B008F1258 /* GLUT.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +30,8 @@
 		3C5E5F0C184167CB00424C89 /* Assignment-3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Assignment-3"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C5E5F0F184167CB00424C89 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3C5E5F11184167CB00424C89 /* Assignment_3.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Assignment_3.1; sourceTree = "<group>"; };
+		6CF7A13D18416ECE008F1258 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		6CF7A13F18416F0B008F1258 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +39,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6CF7A14018416F0B008F1258 /* GLUT.framework in Frameworks */,
+				6CF7A13E18416ECE008F1258 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,6 +50,8 @@
 		3C5E5F03184167CB00424C89 = {
 			isa = PBXGroup;
 			children = (
+				6CF7A13F18416F0B008F1258 /* GLUT.framework */,
+				6CF7A13D18416ECE008F1258 /* OpenGL.framework */,
 				3C5E5F0E184167CB00424C89 /* Assignment-3 */,
 				3C5E5F0D184167CB00424C89 /* Products */,
 			);
@@ -225,6 +233,7 @@
 				3C5E5F17184167CB00424C89 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
