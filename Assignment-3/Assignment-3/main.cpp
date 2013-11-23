@@ -10,7 +10,6 @@
 #include <GLUT/glut.h>
 #include <iostream>
 int ang = 0;	//angle for rotating cube
-int cnt = 0;
 
 /* drawCube() -- draws a cube with different coloured sides using QUAD primitives */
 void drawCube()
@@ -90,13 +89,8 @@ void display()
 	//clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-	cnt++;
 	//increment the rotation angle every 25th display cycle
-	if(cnt % 100 == 0)
-	{
-		ang++;
-		cnt = 0;
-	}
+
     
 	//optionally draw the axis
 	drawAxis();
