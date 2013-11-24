@@ -86,6 +86,12 @@ void drawAxis()
  */
 void display()
 {
+    float origin[] = {0,0,0,1};
+	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
+	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
+	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
+	float shiny = 27;
+    
 	//clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -107,7 +113,22 @@ void display()
 	
     //	glTranslatef(1, 0, 0);
 	//draw the cube
-	drawCube();
+//	drawCube();
+    
+    
+    glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+    
+//	gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
+//	glColor3f(1,1,1);
+    
+    
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_spec);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
+    
+    glutSolidTeapot(1);
     
 	//pop the matrix back to what it was prior to the rotation
 	glPopMatrix();
@@ -132,6 +153,35 @@ void kbd(unsigned char key, int x, int y)
 	}
 }
 
+void init(void)
+{
+	glClearColor(0, 0, 0, 0);
+	glColor3f(1, 1, 1);
+    
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+    
+	float position[4] = {1.5,0,0, 0};
+    
+	float amb[4] = {1.0, 1, 1, 1};
+	float diff[4] = {1,0,0, 1};
+	float spec[4] = {0,0,1, 1};
+    
+    
+	glLightfv(GL_LIGHT1, GL_POSITION, position);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
+    
+    
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	//glOrtho(-2, 2, -2, 2, -2, 2);
+	//glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+	gluPerspective(45, 1, 1, 100);
+    
+}
+
 int main(int argc, char** argv)
 {
 	//glut initialization stuff:
@@ -143,7 +193,7 @@ int main(int argc, char** argv)
     
 	//enable Z buffer test, otherwise things appear in the order they're drawn
 	glEnable(GL_DEPTH_TEST);
-    
+    init();
 	//setup the initial view
 	// change to projection matrix mode, set the extents of our viewing volume
 	glMatrixMode(GL_PROJECTION);
@@ -151,8 +201,8 @@ int main(int argc, char** argv)
 	glOrtho(-2.5, 2.5, -2.5, 2.5, -2.5, 2.5);
 	
     
-	//set clear colour to white
-	glClearColor(1, 1, 1, 0);
+//	//set clear colour to white
+//	glClearColor(1, 1, 1, 0);
     
 	glMatrixMode(GL_MODELVIEW);
 	//look down from a 45 deg. angle
