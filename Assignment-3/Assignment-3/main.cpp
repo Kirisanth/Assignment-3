@@ -20,6 +20,16 @@ float inter[3];
 bool groundPlane = false;
 int mouseX, mouseY;
 float posx, posy, posz;
+=======
+//Global Variables
+float posx = -10;
+float posy = -10;
+float posz = 10;
+float posw = 10.5;
+float posmovx = 0, posmovy = 0, posmovz = 0;
+float position[4] = {posx, posy , posz, posw};
+
+//lighting
 
 /* drawCube() -- draws a cube with different coloured sides using QUAD primitives */
 
@@ -203,8 +213,7 @@ void display()
 	//clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-	//increment the rotation angle every 25th display cycle
-
+    
     
 	//optionally draw the axis
 	drawAxis();
@@ -212,24 +221,59 @@ void display()
     
 	//push the current modelview matrix onto the matrix stack
 	//  this allows us to rotate, then pop the stack so as to only
-	//  rotate our cube, and only by the specified amount
+	//  rotate and scale lighting
 	glPushMatrix();
     
 	//do the rotation - rotate about the Y axis by angle ang
-	
 	glRotatef(ang, 0, 1, 0);
-	
+    
+    //Scale lighting
+	glScaled(posmovx, posmovy, posmovz);
     //	glTranslatef(1, 0, 0);
 	//draw the cube
-//	drawCube();
+    //	drawCube();
     
     
-    glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    //    glMatrixMode(GL_MODELVIEW);
+    //	glLoadIdentity();
     
-//	gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
-//	glColor3f(1,1,1);
+    //	gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
+    //	glColor3f(1,1,1);
     
+    
+    //	float position[4] = {1.5,0,0, 0};
+    //    float position[4] = {10.5,10.5,0,10.5};
+    
+	float amb[4] = {1.0, 1, 1, 1};
+	float diff[4] = {1,0,0, 1};
+	float spec[4] = {0,0,1, 1};
+    
+    
+	glLightfv(GL_LIGHT1, GL_POSITION, position);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
+    
+    //    glLightfv(GL_LIGHT2, GL_POSITION, position);
+    //	glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
+    //	glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
+    //	glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
+    
+    //TODO: Whats all this for
+    //	glMatrixMode(GL_PROJECTION);
+    //	glLoadIdentity();
+	//glOrtho(-2, 2, -2, 2, -2, 2);
+	//glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    //	gluPerspective(45, 1, 1, 100);
+    
+    glPopMatrix();
+    
+    //TODO:Change to global variables
+    float origin[] = {0,0,0,1};
+	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
+	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
+	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
+	float shiny = 50;
     
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
@@ -239,13 +283,19 @@ void display()
     glutSolidTeapot(1);
     
 	//pop the matrix back to what it was prior to the rotation
-	glPopMatrix();
+    //	glPopMatrix();
 	
 	//swap buffers - rendering is done to the back buffer, bring it forward to display
 	glutSwapBuffers();
     
 	//force a redisplay, to keep the animation running
 	glutPostRedisplay();
+}
+
+void idle()
+{
+    ang++;
+    glutPostRedisplay();
 }
 
 /* kbd -- the GLUT keyboard function
@@ -259,6 +309,29 @@ void kbd(unsigned char key, int x, int y)
 	{
 		exit(0);
 	}
+    if (key == 'r') {
+        //        posx++;
+        //        posy++;
+        posmovx++;
+        posmovy++;
+        posmovz++;
+        //        posz++;
+        printf("%4.2f \n", posmovx);
+    }
+    if (key == 'e') {
+        //        posx--;
+        //        posy--;
+        //        posz--;
+        posmovx--;
+        posmovy--;
+        posmovz--;
+        printf("%4.2f \n", posmovx);
+    }
+    if (key == 'b')
+    {
+        idle();
+        //        glutPostRedisplay();
+    }
 }
 
 void init(void)
@@ -267,19 +340,25 @@ void init(void)
 	glColor3f(1, 1, 1);
     
 	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
     
-	float position[4] = {1.5,0,0, 0};
+    //	float position[4] = {1.5,0,0, 0};
+    //    float position[4] = {10.5,10.5,0,10.5};
     
-	float amb[4] = {1.0, 1, 1, 1};
-	float diff[4] = {1,0,0, 1};
-	float spec[4] = {0,0,1, 1};
+    //	float amb[4] = {1.0, 1, 1, 1};
+    //	float diff[4] = {1,0,0, 1};
+    //	float spec[4] = {0,0,1, 1};
     
     
-	glLightfv(GL_LIGHT1, GL_POSITION, position);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
+    //	glLightfv(GL_LIGHT1, GL_POSITION, position);
+    //	glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
+    //	glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
+    //	glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
+    
+    //    glLightfv(GL_LIGHT2, GL_POSITION, position);
+    //	glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
+    //	glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
+    //	glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
     
     
 	glMatrixMode(GL_PROJECTION);
@@ -294,9 +373,9 @@ void mouse(int btn, int state, int x, int y)
     y = 500 - y;
 	if(btn == GLUT_LEFT_BUTTON)
 	{
-            mouseX = x;
-            mouseY = y;
-
+        mouseX = x;
+        mouseY = y;
+        
         
 	}
 	if(btn == GLUT_RIGHT_BUTTON)
@@ -316,7 +395,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitWindowSize(600, 600);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutCreateWindow("Spinning Cube");
+	glutCreateWindow("Assignment 3");
     
 	//enable Z buffer test, otherwise things appear in the order they're drawn
 	glEnable(GL_DEPTH_TEST);
@@ -328,8 +407,8 @@ int main(int argc, char** argv)
 	glOrtho(-2.5, 2.5, -2.5, 2.5, -2.5, 2.5);
 	
     
-//	//set clear colour to white
-//	glClearColor(1, 1, 1, 0);
+    //	//set clear colour to white
+    //	glClearColor(1, 1, 1, 0);
     
 	glMatrixMode(GL_MODELVIEW);
 	//look down from a 45 deg. angle
@@ -339,6 +418,7 @@ int main(int argc, char** argv)
 	//register glut callbacks for keyboard and display function
 	glutKeyboardFunc(kbd);
 	glutDisplayFunc(display);
+    glutIdleFunc(idle);
     
 	//start the program!
 	glutMainLoop();
