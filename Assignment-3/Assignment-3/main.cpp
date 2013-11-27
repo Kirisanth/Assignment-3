@@ -6,12 +6,112 @@
 //  Copyright (c) 2013 Kirisanth Subramaniam. All rights reserved.
 //
 
+#include "ray.h"
 #include <stdlib.h>
 #include <GLUT/glut.h>
 #include <iostream>
+#include <math.h>
 int ang = 0;	//angle for rotating cube
+double camx;
+double camy;
+double camz;
+double objectPos[3];
+float inter[3];
+bool groundPlane = false;
+int mouseX, mouseY;
+float posx, posy, posz;
 
 /* drawCube() -- draws a cube with different coloured sides using QUAD primitives */
+
+/* Get3DPos - takes a mouse x,y coordinate, and a "winz" corresponding to
+ *  the depth through the viewing volume at which to determine the 3D point.
+ *  returns (via point array) the 3D point corresponding to the distance along
+ *  the mouse ray at depth winz
+ */
+void Get3DPos(int x, int y, float winz, GLdouble point[3])
+{
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	
+	//get the matrices
+	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+	glGetDoublev( GL_PROJECTION_MATRIX, projection );
+	glGetIntegerv( GL_VIEWPORT, viewport );
+    
+	//"un-project" the 2D point giving the 3D position corresponding to the provided depth (winz)
+	gluUnProject( (float)x, (float)(viewport[3]-y), winz, modelview, projection, viewport, &point[0], &point[1], &point[2]);
+}
+
+float distance(ray newRay){
+    return -1 * (newRay.dir[0]*newRay.norm[0] + newRay.dir[1]*newRay.norm[1] + newRay.dir[2]*newRay.norm[2]);
+}
+
+void normalize(ray newRay){
+    double length;
+    length = sqrt((newRay.dir[0]*newRay.dir[0]) + (newRay.dir[1] * newRay.dir[1]) + (newRay.dir[2] * newRay.dir[2]));
+    newRay.norm[0] = newRay.dir[0]/length;
+    newRay.norm[1] = newRay.dir[1]/length;
+    newRay.norm[2] = newRay.dir[2]/length;
+}
+
+void rayPlaneTest(ray newRay, float d){
+    double t = (newRay.norm[0] * newRay.dir[0] + newRay.norm[1] * newRay.dir[1] + newRay.norm[2] * newRay.dir[2]);
+    if (t != 0){
+        t = (-1* (newRay.norm[0] * newRay.org[0] + newRay.norm[1] * newRay.org[1] + newRay.norm[2] * newRay.org[2] + d))/t;
+        groundPlane = true;
+        inter[0] = newRay.org[0] + t*newRay.dir[0];
+        inter[1] = newRay.org[1] + t*newRay.dir[1];
+        inter[2] = newRay.org[2] + t*newRay.dir[2];
+    }
+    else {
+        groundPlane = false;
+    }
+}
+
+/* rayCast - takes a mouse x,y, coordinate, and casts a ray through that point
+ *   for subsequent intersection tests with objects.
+ */
+void rayCast(int x, int y)
+{
+	GLdouble pNear[3];
+	GLdouble pFar[3]; //declare the two points
+	float d;
+    
+    
+	//get 3D position of mouse cursor on near and far clipping planes
+	Get3DPos(x, y, 0.0, pNear);
+	Get3DPos(x, y, 1.0, pFar);
+    
+	//create a ray originating at the camera position, and using the vector between the two points for the direction
+	ray newRay;
+	newRay.org[0] = camx;
+	newRay.org[1] = camy;
+	newRay.org[2] = camz;
+	
+	//ray direction is the vector (pFar - pNear)
+	newRay.dir[0] = pFar[0] - pNear[0];
+	newRay.dir[1] = pFar[1] - pNear[1];
+	newRay.dir[2] = pFar[2] - pNear[2];
+    
+	//normalize the ray direction
+	normalize(newRay);
+    d = distance(newRay);
+    
+	//printf("%f %f %f\n", newRay.dir[0], newRay.dir[1], newRay.dir[2]);
+    
+	//test if the ground plane is intersected by the ray
+	// NOTE: you have to provide rayPlaneTest!! (see the slides)
+	rayPlaneTest(newRay, d);
+    
+	//update the position of the object to the intersection point
+    if ( groundPlane == true){
+        objectPos[0] = inter[0];
+        objectPos[1] = inter[1];
+        objectPos[2] = inter[2];
+    }
+}
+
 void drawCube()
 {
 	glBegin(GL_QUADS);
@@ -91,7 +191,14 @@ void display()
 	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
 	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
 	float shiny = 27;
-    
+    int x = mouseX;
+    int y = mouseY;
+    rayCast(x,y);
+    glPointSize(10);
+    glBegin(GL_POINTS);
+    glVertex3i(objectPos[0], objectPos[1], objectPos[2]);
+    glColor3f(1,0,0);
+    glEnd();
 	//clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -180,6 +287,25 @@ void init(void)
 	//glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 	gluPerspective(45, 1, 1, 100);
     
+}
+void mouse(int btn, int state, int x, int y)
+{
+    y = 500 - y;
+	if(btn == GLUT_LEFT_BUTTON)
+	{
+            mouseX = x;
+            mouseY = y;
+
+        
+	}
+	if(btn == GLUT_RIGHT_BUTTON)
+	{
+        mouseX = x;
+        mouseY = y;
+	}
+    
+	glFlush();
+    glutSwapBuffers();
 }
 
 int main(int argc, char** argv)
