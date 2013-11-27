@@ -19,8 +19,8 @@ double objectPos[3];
 float inter[3];
 bool groundPlane = false;
 int mouseX, mouseY;
-float posx, posy, posz;
-=======
+//float posx, posy, posz;
+
 //Global Variables
 float posx = -10;
 float posy = -10;
@@ -197,7 +197,7 @@ void drawAxis()
  */
 void display()
 {
-    float origin[] = {0,0,0,1};
+//    float origin[] = {0,0,0,1};
 	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
 	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
 	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
@@ -269,11 +269,11 @@ void display()
     glPopMatrix();
     
     //TODO:Change to global variables
-    float origin[] = {0,0,0,1};
-	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
-	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
-	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
-	float shiny = 50;
+//    float origin[] = {0,0,0,1};
+//	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
+//	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
+//	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
+//	float shiny = 50;
     
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
