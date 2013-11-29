@@ -12,13 +12,11 @@
 #include <iostream>
 #include <math.h>
 int ang = 0;	//angle for rotating cube
-double camx;
-double camy;
-double camz;
+double camera[3] = {5,5,5};
 double objectPos[3];
 float inter[3];
-bool groundPlane = false;
-int mouseX, mouseY;
+bool groundPlane = true;
+float mouseX, mouseY, mouseZ;
 //float posx, posy, posz;
 
 //Global Variables
@@ -28,6 +26,10 @@ float posz = 10;
 float posw = 10.5;
 float posmovx = 0, posmovy = 0, posmovz = 0;
 float position[4] = {posx, posy , posz, posw};
+float planeNormal[3] = {0,4,1};
+GLdouble newPoint [3];
+GLdouble pNear[3];
+GLdouble pFar[3]; //declare the two points
 
 //lighting
 
@@ -38,12 +40,12 @@ float position[4] = {posx, posy , posz, posw};
  *  returns (via point array) the 3D point corresponding to the distance along
  *  the mouse ray at depth winz
  */
+
 void Get3DPos(int x, int y, float winz, GLdouble point[3])
 {
 	GLint viewport[4];
 	GLdouble modelview[16];
 	GLdouble projection[16];
-    //fuck yoiu
 	
 	//get the matrices
 	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
@@ -52,28 +54,34 @@ void Get3DPos(int x, int y, float winz, GLdouble point[3])
     
 	//"un-project" the 2D point giving the 3D position corresponding to the provided depth (winz)
 	gluUnProject( (float)x, (float)(viewport[3]-y), winz, modelview, projection, viewport, &point[0], &point[1], &point[2]);
+    
 }
 
+
 float distance(ray newRay){
-    return -1 * (newRay.dir[0]*newRay.norm[0] + newRay.dir[1]*newRay.norm[1] + newRay.dir[2]*newRay.norm[2]);
+    return -1 * (0*newRay.norm[0] + 0*newRay.norm[1] + 0*newRay.norm[2]);
 }
 
 void normalize(ray newRay){
-    double length;
+    float length;
     length = sqrt((newRay.dir[0]*newRay.dir[0]) + (newRay.dir[1] * newRay.dir[1]) + (newRay.dir[2] * newRay.dir[2]));
     newRay.norm[0] = newRay.dir[0]/length;
     newRay.norm[1] = newRay.dir[1]/length;
     newRay.norm[2] = newRay.dir[2]/length;
+    
+    printf("%f %f %f\n", newRay.norm[0], newRay.norm[1], newRay.norm[2]);
 }
 
 void rayPlaneTest(ray newRay, float d){
-    double t = (newRay.norm[0] * newRay.dir[0] + newRay.norm[1] * newRay.dir[1] + newRay.norm[2] * newRay.dir[2]);
-    if (t != 0){
-        t = (-1* (newRay.norm[0] * newRay.org[0] + newRay.norm[1] * newRay.org[1] + newRay.norm[2] * newRay.org[2] + d))/t;
+    
+    double t = (planeNormal[0] *  newRay.norm[0] + planeNormal[1] * newRay.norm[1] + planeNormal[2] * newRay.norm[2]);
+    
+    if (t <= 0){
+        t = (-1* (planeNormal[0] * newRay.org[0] + planeNormal[1] * newRay.org[1] + planeNormal[2] * newRay.org[2] + d))/t;
+        inter[0] = newRay.org[0] + t*newRay.norm[0];
+        inter[1] = newRay.org[1] + t*newRay.norm[1];
+        inter[2] = newRay.org[2] + t*newRay.norm[2];
         groundPlane = true;
-        inter[0] = newRay.org[0] + t*newRay.dir[0];
-        inter[1] = newRay.org[1] + t*newRay.dir[1];
-        inter[2] = newRay.org[2] + t*newRay.dir[2];
     }
     else {
         groundPlane = false;
@@ -83,12 +91,9 @@ void rayPlaneTest(ray newRay, float d){
 /* rayCast - takes a mouse x,y, coordinate, and casts a ray through that point
  *   for subsequent intersection tests with objects.
  */
-void rayCast(int x, int y)
+void rayCast(float x, float y)
 {
-	GLdouble pNear[3];
-	GLdouble pFar[3]; //declare the two points
 	float d;
-    
     
 	//get 3D position of mouse cursor on near and far clipping planes
 	Get3DPos(x, y, 0.0, pNear);
@@ -96,9 +101,9 @@ void rayCast(int x, int y)
     
 	//create a ray originating at the camera position, and using the vector between the two points for the direction
 	ray newRay;
-	newRay.org[0] = camx;
-	newRay.org[1] = camy;
-	newRay.org[2] = camz;
+	newRay.org[0] = camera[0];
+	newRay.org[1] = camera[1];
+	newRay.org[2] = camera[2];
 	
 	//ray direction is the vector (pFar - pNear)
 	newRay.dir[0] = pFar[0] - pNear[0];
@@ -106,20 +111,40 @@ void rayCast(int x, int y)
 	newRay.dir[2] = pFar[2] - pNear[2];
     
 	//normalize the ray direction
-	normalize(newRay);
-    d = distance(newRay);
+	//normalize(newRay);
     
-	//printf("%f %f %f\n", newRay.dir[0], newRay.dir[1], newRay.dir[2]);
+    float length;
+    length = sqrt((newRay.dir[0]*newRay.dir[0]) + (newRay.dir[1] * newRay.dir[1]) + (newRay.dir[2] * newRay.dir[2]));
+    newRay.norm[0] = newRay.dir[0]/length *-1;
+    newRay.norm[1] = newRay.dir[1]/length *-1;
+    newRay.norm[2] = newRay.dir[2]/length *-1;
     
-	//test if the ground plane is intersected by the ray
-	// NOTE: you have to provide rayPlaneTest!! (see the slides)
-	rayPlaneTest(newRay, d);
+    printf("%f %f %f\n", newRay.norm[0], newRay.norm[1], newRay.norm[2]);
+    
+    d = -1 * (1*planeNormal[0] + 0.5*planeNormal[1] + -1*planeNormal[2]);
+    
+    float t = (planeNormal[0] *  newRay.norm[0] + planeNormal[1] * newRay.norm[1] + planeNormal[2] * newRay.norm[2]);
+    
+    if (t != 0){
+        t = (-1* (planeNormal[0] * newRay.org[0] + planeNormal[1] * newRay.org[1] + planeNormal[2] * newRay.org[2] + d))/t;
+        inter[0] = newRay.org[0] + t*newRay.norm[0];
+        inter[1] = newRay.org[1] + t*newRay.norm[1];
+        inter[2] = newRay.org[2] + t*newRay.norm[2];
+        groundPlane = true;
+    }
+    else {
+        groundPlane = false;
+    }
     
 	//update the position of the object to the intersection point
     if ( groundPlane == true){
         objectPos[0] = inter[0];
         objectPos[1] = inter[1];
         objectPos[2] = inter[2];
+        printf("%f\n",objectPos[0]);
+        printf("%f\n",objectPos[1]);
+        printf("%f\n",objectPos[2]);
+        printf("dsfasdfa");
     }
 }
 
@@ -127,47 +152,54 @@ void drawCube()
 {
 	glBegin(GL_QUADS);
 	
-    //front
-    glColor3f(1, 0, 0);
-    glVertex3f(-1, -1, 1);
-    glVertex3f(1, -1, 1);
-    glVertex3f(1, 1, 1);
-    glVertex3f(-1, 1, 1);
-    
-    //top
-    glColor3f(1, 1, 0);
-    glVertex3f(-1,1,1);
-    glVertex3f(1,1,1);
-    glVertex3f(1,1,-1);
-    glVertex3f(-1,1,-1);
-    
+//    //front
+//    glColor3f(1, 0, 0);
+//    glVertex3f(-1, -1, 1);
+//    glVertex3f(1, -1, 1);
+//    glVertex3f(1, 1, 1);
+//    glVertex3f(-1, 1, 1);
+//    
+//    //top
+//    glColor3f(1, 1, 0);
+//    glVertex3f(-1,1,1);
+//    glVertex3f(1,1,1);
+//    glVertex3f(1,1,-1);
+//    glVertex3f(-1,1,-1);
+//    
     //bottom
-    glColor3f(0, 1, 0);
-    glVertex3f(-1,-1,1);
-    glVertex3f(1,-1,1);
-    glVertex3f(1,-1,-1);
-    glVertex3f(-1,-1,-1);
+//    glColor3f(0, 0.5, 0.5);
+//    glVertex3f(-1,0.1,1);
+//    glVertex3f(1,0.1,1);
+//    glVertex3f(1,0.1,-1);
+//    glVertex3f(-1,0.1,-1);
     
-    //left side
-    glColor3f(0, 0, 1);
-    glVertex3f(-1,1,1);
-    glVertex3f(-1,-1,1);
-    glVertex3f(-1,-1,-1);
-    glVertex3f(-1,1,-1);
     
-    //right side
-    glColor3f(1,0,1);
-    glVertex3f(1,1,1);
-    glVertex3f(1,-1,1);
-    glVertex3f(1,-1,-1);
-    glVertex3f(1,1,-1);
+    glColor3f(1, 0.5, 0.5);
+    glVertex3f(-1,0,1);
+    glVertex3f(1,0,1);
+    glVertex3f(1,0.5,-1);
+    glVertex3f(-1,0.5,-1);
     
-    //back side
-    glColor3f(0,1,0);
-    glVertex3f(-1,1,-1);
-    glVertex3f(-1,-1,-1);
-    glVertex3f(1,-1,-1);
-    glVertex3f(1,1,-1);
+//    //left side
+//    glColor3f(0, 0, 1);
+//    glVertex3f(-1,1,1);
+//    glVertex3f(-1,-1,1);
+//    glVertex3f(-1,-1,-1);
+//    glVertex3f(-1,1,-1);
+//    
+//    //right side
+//    glColor3f(1,0,1);
+//    glVertex3f(1,1,1);
+//    glVertex3f(1,-1,1);
+//    glVertex3f(1,-1,-1);
+//    glVertex3f(1,1,-1);
+//    
+//    //back side
+//    glColor3f(0,1,0);
+//    glVertex3f(-1,1,-1);
+//    glVertex3f(-1,-1,-1);
+//    glVertex3f(1,-1,-1);
+//    glVertex3f(1,1,-1);
     
 	glEnd();
 }
@@ -198,37 +230,43 @@ void drawAxis()
 void display()
 {
 //    float origin[] = {0,0,0,1};
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
+    
+    
+    glPushMatrix();
+    //glutSolidCube(1);
 	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
 	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
 	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
 	float shiny = 27;
-    int x = mouseX;
-    int y = mouseY;
-    rayCast(x,y);
-    glPointSize(10);
-    glBegin(GL_POINTS);
-    glVertex3i(objectPos[0], objectPos[1], objectPos[2]);
-    glColor3f(1,0,0);
-    glEnd();
+//    int x = mouseX;
+//    int y = mouseY;
+    //rayCast(x,y);
 	//clear the screen
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    
-    
+     drawCube();
 	//optionally draw the axis
 	drawAxis();
+    
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    glPointSize(10);
+    glBegin(GL_POINTS);
+    glVertex3f(objectPos[0],objectPos[1],objectPos[2]);//draw point
+    glEnd();
     
     
 	//push the current modelview matrix onto the matrix stack
 	//  this allows us to rotate, then pop the stack so as to only
 	//  rotate and scale lighting
-	glPushMatrix();
+	//glPushMatrix();
     
 	//do the rotation - rotate about the Y axis by angle ang
-	glRotatef(ang, 0, 1, 0);
+	//glRotatef(ang, 0, 1, 0);
     
     //Scale lighting
-	glScaled(posmovx, posmovy, posmovz);
+	//glScaled(posmovx, posmovy, posmovz);
     //	glTranslatef(1, 0, 0);
 	//draw the cube
     //	drawCube();
@@ -266,7 +304,7 @@ void display()
 	//glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     //	gluPerspective(45, 1, 1, 100);
     
-    glPopMatrix();
+    //glPopMatrix();
     
     //TODO:Change to global variables
 //    float origin[] = {0,0,0,1};
@@ -280,12 +318,13 @@ void display()
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_spec);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
     
-    glutSolidTeapot(1);
+    //glutSolidTeapot(1);
     
 	//pop the matrix back to what it was prior to the rotation
     //	glPopMatrix();
 	
 	//swap buffers - rendering is done to the back buffer, bring it forward to display
+    glPopMatrix();
 	glutSwapBuffers();
     
 	//force a redisplay, to keep the animation running
@@ -361,22 +400,20 @@ void init(void)
     //	glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
     
     
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
 	//glOrtho(-2, 2, -2, 2, -2, 2);
 	//glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-	gluPerspective(45, 1, 1, 100);
+	//gluPerspective(45, 1, 1, 100);
     
 }
 void mouse(int btn, int state, int x, int y)
 {
-    y = 500 - y;
+   
 	if(btn == GLUT_LEFT_BUTTON)
 	{
-        mouseX = x;
-        mouseY = y;
-        
-        
+        //Get3DPos(x,y,0,newPoint);
+        rayCast(x, y);
 	}
 	if(btn == GLUT_RIGHT_BUTTON)
 	{
@@ -394,26 +431,24 @@ int main(int argc, char** argv)
 	// set the window size, display mode, and create the window
 	glutInit(&argc, argv);
 	glutInitWindowSize(600, 600);
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Assignment 3");
-    
+    glClearColor(0.5, 0.5, 0.5, 0);
 	//enable Z buffer test, otherwise things appear in the order they're drawn
 	glEnable(GL_DEPTH_TEST);
-    init();
-	//setup the initial view
-	// change to projection matrix mode, set the extents of our viewing volume
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-2.5, 2.5, -2.5, 2.5, -2.5, 2.5);
-	
+	//glOrtho(-2.5, 2.5, -2.5, 2.5, -2.5, 2.5);
+	gluPerspective(15, 1, 1, 100);
     
     //	//set clear colour to white
     //	glClearColor(1, 1, 1, 0);
     
 	glMatrixMode(GL_MODELVIEW);
-	//look down from a 45 deg. angle
-	glRotatef(45, 1, 0, 0);
+ 
+	//glRotatef(0, camera[0], camera[1], camera[2]);
     
+    glutMouseFunc(mouse);
     
 	//register glut callbacks for keyboard and display function
 	glutKeyboardFunc(kbd);
