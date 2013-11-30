@@ -6,19 +6,20 @@
 //  Copyright (c) 2013 Kirisanth Subramaniam. All rights reserved.
 //
 
-#include "ray.h"
+#include "objects.h"
 #include <stdlib.h>
 #include <GLUT/glut.h>
 #include <iostream>
 #include <math.h>
 int ang = 0;	//angle for rotating cube
 double camera[3] = {5,5,5};
-double objectPos[3];
+float objectPos[3];
 float inter[3];
 bool groundPlane = true;
 float mouseX, mouseY, mouseZ;
 //float posx, posy, posz;
-
+float angY = 0;//roation around Y
+float angZ = 0;//rotation around X
 //Global Variables
 float posx = -10;
 float posy = -10;
@@ -26,10 +27,15 @@ float posz = 10;
 float posw = 10.5;
 float posmovx = 0, posmovy = 0, posmovz = 0;
 float position[4] = {posx, posy , posz, posw};
-float planeNormal[3] = {0,4,1};
+float planeNormal[6][3] = {{0,1,0},{-0.125,0,0},{0,0,0.125},{0.25,0,0},{0,0,-0.25}};//TOP,LEFT,RIGHT,BACKRIGHT,BACKLEFT,BOTTOM
+float planePoints[6][3] = {{0.25,0.25,0},{0,-0.25,0.25},{0.25,-0.25,0.25},{0.25,0.25,0.25},{-0.25,-0.25,-0.25},{0.25,-0.25,-0.25}};
 GLdouble newPoint [3];
 GLdouble pNear[3];
 GLdouble pFar[3]; //declare the two points
+bool hit = false;
+int x, y, z;
+objects objectsList[20];
+int numOfObjects = 0;
 
 //lighting
 
@@ -58,35 +64,9 @@ void Get3DPos(int x, int y, float winz, GLdouble point[3])
 }
 
 
-float distance(ray newRay){
-    return -1 * (0*newRay.norm[0] + 0*newRay.norm[1] + 0*newRay.norm[2]);
-}
-
-void normalize(ray newRay){
-    float length;
-    length = sqrt((newRay.dir[0]*newRay.dir[0]) + (newRay.dir[1] * newRay.dir[1]) + (newRay.dir[2] * newRay.dir[2]));
-    newRay.norm[0] = newRay.dir[0]/length;
-    newRay.norm[1] = newRay.dir[1]/length;
-    newRay.norm[2] = newRay.dir[2]/length;
-    
-    printf("%f %f %f\n", newRay.norm[0], newRay.norm[1], newRay.norm[2]);
-}
-
-void rayPlaneTest(ray newRay, float d){
-    
-    double t = (planeNormal[0] *  newRay.norm[0] + planeNormal[1] * newRay.norm[1] + planeNormal[2] * newRay.norm[2]);
-    
-    if (t <= 0){
-        t = (-1* (planeNormal[0] * newRay.org[0] + planeNormal[1] * newRay.org[1] + planeNormal[2] * newRay.org[2] + d))/t;
-        inter[0] = newRay.org[0] + t*newRay.norm[0];
-        inter[1] = newRay.org[1] + t*newRay.norm[1];
-        inter[2] = newRay.org[2] + t*newRay.norm[2];
-        groundPlane = true;
-    }
-    else {
-        groundPlane = false;
-    }
-}
+//float distance(ray newRay){
+//    return -1 * (0*newRay.norm[0] + 0*newRay.norm[1] + 0*newRay.norm[2]);
+//}
 
 /* rayCast - takes a mouse x,y, coordinate, and casts a ray through that point
  *   for subsequent intersection tests with objects.
@@ -95,12 +75,13 @@ void rayCast(float x, float y)
 {
 	float d;
     
+    for (int i = 0; i < 5; i++){
 	//get 3D position of mouse cursor on near and far clipping planes
 	Get3DPos(x, y, 0.0, pNear);
 	Get3DPos(x, y, 1.0, pFar);
     
 	//create a ray originating at the camera position, and using the vector between the two points for the direction
-	ray newRay;
+	objects newRay;
 	newRay.org[0] = camera[0];
 	newRay.org[1] = camera[1];
 	newRay.org[2] = camera[2];
@@ -119,14 +100,14 @@ void rayCast(float x, float y)
     newRay.norm[1] = newRay.dir[1]/length *-1;
     newRay.norm[2] = newRay.dir[2]/length *-1;
     
-    printf("%f %f %f\n", newRay.norm[0], newRay.norm[1], newRay.norm[2]);
+    //printf("%f %f %f\n", newRay.norm[0], newRay.norm[1], newRay.norm[2]);
     
-    d = -1 * (1*planeNormal[0] + 0.5*planeNormal[1] + -1*planeNormal[2]);
+    d = -1 * (planePoints[i][0]*planeNormal[i][0] + planePoints[i][1]*planeNormal[i][1] + planePoints[i][2]*planeNormal[i][2]);
     
-    float t = (planeNormal[0] *  newRay.norm[0] + planeNormal[1] * newRay.norm[1] + planeNormal[2] * newRay.norm[2]);
+    float t = (planeNormal[i][0] *  newRay.norm[0] + planeNormal[i][1] * newRay.norm[1] + planeNormal[i][2] * newRay.norm[2]);
     
     if (t != 0){
-        t = (-1* (planeNormal[0] * newRay.org[0] + planeNormal[1] * newRay.org[1] + planeNormal[2] * newRay.org[2] + d))/t;
+        t = (-1* (planeNormal[i][0] * newRay.org[0] + planeNormal[i][1] * newRay.org[1] + planeNormal[i][2] * newRay.org[2] + d))/t;
         inter[0] = newRay.org[0] + t*newRay.norm[0];
         inter[1] = newRay.org[1] + t*newRay.norm[1];
         inter[2] = newRay.org[2] + t*newRay.norm[2];
@@ -141,10 +122,22 @@ void rayCast(float x, float y)
         objectPos[0] = inter[0];
         objectPos[1] = inter[1];
         objectPos[2] = inter[2];
+        
         printf("%f\n",objectPos[0]);
         printf("%f\n",objectPos[1]);
         printf("%f\n",objectPos[2]);
-        printf("dsfasdfa");
+        printf("dsfasdfa\n");
+        
+        if ((-0.25 < objectPos[0] && objectPos[0] < 0.25 && -0.25 < objectPos[2] && objectPos[2] < 0.25)){
+                hit = true;
+                printf("\ntrue");
+                break;
+        }
+        else{
+            hit = false;
+        }
+        
+    }
     }
 }
 
@@ -152,56 +145,33 @@ void drawCube()
 {
 	glBegin(GL_QUADS);
 	
-//    //front
-//    glColor3f(1, 0, 0);
-//    glVertex3f(-1, -1, 1);
-//    glVertex3f(1, -1, 1);
-//    glVertex3f(1, 1, 1);
-//    glVertex3f(-1, 1, 1);
-//    
-//    //top
-//    glColor3f(1, 1, 0);
-//    glVertex3f(-1,1,1);
-//    glVertex3f(1,1,1);
-//    glVertex3f(1,1,-1);
-//    glVertex3f(-1,1,-1);
-//    
-    //bottom
-//    glColor3f(0, 0.5, 0.5);
-//    glVertex3f(-1,0.1,1);
-//    glVertex3f(1,0.1,1);
-//    glVertex3f(1,0.1,-1);
-//    glVertex3f(-1,0.1,-1);
     
     
     glColor3f(1, 0.5, 0.5);
-    glVertex3f(-1,0,1);
-    glVertex3f(1,0,1);
-    glVertex3f(1,0.5,-1);
-    glVertex3f(-1,0.5,-1);
+    glVertex3f(-0.5,0,0.5);
+    glVertex3f(0.5,0,0.5);
+    glVertex3f(0.5,0.5,-0.5);
+    glVertex3f(-0.5,0.5,-0.5);
     
-//    //left side
-//    glColor3f(0, 0, 1);
-//    glVertex3f(-1,1,1);
-//    glVertex3f(-1,-1,1);
-//    glVertex3f(-1,-1,-1);
-//    glVertex3f(-1,1,-1);
-//    
-//    //right side
-//    glColor3f(1,0,1);
-//    glVertex3f(1,1,1);
-//    glVertex3f(1,-1,1);
-//    glVertex3f(1,-1,-1);
-//    glVertex3f(1,1,-1);
-//    
-//    //back side
-//    glColor3f(0,1,0);
-//    glVertex3f(-1,1,-1);
-//    glVertex3f(-1,-1,-1);
-//    glVertex3f(1,-1,-1);
-//    glVertex3f(1,1,-1);
+    glColor3f(1, 0.5, 0.5);
+    glVertex3f(-0.5,1,0.5);
+    glVertex3f(0.5,1,0.5);
+    glVertex3f(0.5,1,-0.5);
+    glVertex3f(-0.5,1,-0.5);
+    
     
 	glEnd();
+    
+    glLineWidth(2.5);
+    glColor3f(1, 1, 1);
+    glBegin(GL_LINES);
+    glVertex3f(-0.5,0,0.5);
+    glVertex3f(0.5,0.5,-0.5);
+    
+    glVertex3f(0.5,0,0.5);
+    glVertex3f(-0.5,0.5,-0.5);
+    
+    glEnd();
 }
 
 /* drawAxis() -- draws an axis at the origin of the coordinate system
@@ -235,18 +205,27 @@ void display()
     glLoadIdentity();
     gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
     
-    
     glPushMatrix();
-    //glutSolidCube(1);
+    for (int x = 0; x < numOfObjects; x++){
+        objectsList[x].drawObjects();
+    }
+    
+    glRotatef(angY, 0, 0, 1);//rotate scene around x axis
+    glRotatef(angZ, 0, 1, 0);//rotate scene around y axis
+    glColor3f(0, 0.5, 0.5);
+    //glutSolidCube(0.5);
+    if (hit == true){
+    glColor3f(1, 1, 1);
+    glutWireCube(0.7);
+    }
 	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
 	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
 	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
 	float shiny = 27;
-//    int x = mouseX;
-//    int y = mouseY;
+    
     //rayCast(x,y);
 	//clear the screen
-     drawCube();
+    //drawCube();
 	//optionally draw the axis
 	drawAxis();
     
@@ -257,31 +236,6 @@ void display()
     glEnd();
     
     
-	//push the current modelview matrix onto the matrix stack
-	//  this allows us to rotate, then pop the stack so as to only
-	//  rotate and scale lighting
-	//glPushMatrix();
-    
-	//do the rotation - rotate about the Y axis by angle ang
-	//glRotatef(ang, 0, 1, 0);
-    
-    //Scale lighting
-	//glScaled(posmovx, posmovy, posmovz);
-    //	glTranslatef(1, 0, 0);
-	//draw the cube
-    //	drawCube();
-    
-    
-    //    glMatrixMode(GL_MODELVIEW);
-    //	glLoadIdentity();
-    
-    //	gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
-    //	glColor3f(1,1,1);
-    
-    
-    //	float position[4] = {1.5,0,0, 0};
-    //    float position[4] = {10.5,10.5,0,10.5};
-    
 	float amb[4] = {1.0, 1, 1, 1};
 	float diff[4] = {1,0,0, 1};
 	float spec[4] = {0,0,1, 1};
@@ -291,27 +245,6 @@ void display()
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
 	glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
-    
-    //    glLightfv(GL_LIGHT2, GL_POSITION, position);
-    //	glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
-    //	glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
-    //	glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
-    
-    //TODO: Whats all this for
-    //	glMatrixMode(GL_PROJECTION);
-    //	glLoadIdentity();
-	//glOrtho(-2, 2, -2, 2, -2, 2);
-	//glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-    //	gluPerspective(45, 1, 1, 100);
-    
-    //glPopMatrix();
-    
-    //TODO:Change to global variables
-//    float origin[] = {0,0,0,1};
-//	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
-//	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
-//	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
-//	float shiny = 50;
     
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
@@ -371,6 +304,12 @@ void kbd(unsigned char key, int x, int y)
         idle();
         //        glutPostRedisplay();
     }
+    if (key == 'a'){
+        objects newObject;
+        newObject.objectType = 1;
+        objectsList[numOfObjects] = newObject;
+        numOfObjects++;
+    }
 }
 
 void init(void)
@@ -425,6 +364,26 @@ void mouse(int btn, int state, int x, int y)
     glutSwapBuffers();
 }
 
+void processSpecialKeys(int key, int x, int y) {
+    
+    //Responsible for camera movement, press right to turn right, left for left, up for up and down for down
+    switch(key) {
+		case GLUT_KEY_UP:
+            angY = angY +1;
+            break;
+		case GLUT_KEY_DOWN :
+            angY = angY -1;
+            break;
+        case GLUT_KEY_LEFT:
+            angZ = angZ + 1;
+            break;
+        case GLUT_KEY_RIGHT:
+            angZ = angZ - 1;
+            break;
+	}
+    
+}
+
 int main(int argc, char** argv)
 {
 	//glut initialization stuff:
@@ -452,6 +411,7 @@ int main(int argc, char** argv)
     
 	//register glut callbacks for keyboard and display function
 	glutKeyboardFunc(kbd);
+    glutSpecialFunc(processSpecialKeys);
 	glutDisplayFunc(display);
     glutIdleFunc(idle);
     
