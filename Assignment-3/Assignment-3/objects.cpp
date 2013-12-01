@@ -43,13 +43,29 @@ void objects::normalizeDirection(){
 }
 
 void objects::drawObjects(){
+        glColor3f(0, 0.5, 0.5);
+        glTranslatef(translateX, translateY, translateZ);
+        glRotatef(rotateX, 1, 0, 0);
+        glRotatef(rotateY, 0, 1, 0);
+        glRotatef(rotateZ, 0, 0, 1);
         if (objectType == 1){
-            glColor3f(0, 0.5, 0.5);
-            glTranslatef(translateX, translateY, translateZ);
             glutSolidCube(0.5);//draw cube
         }
         else if (objectType == 2){
             glutSolidSphere(0.3, 15, 15);//draw cube
+            spherePoints[0] = 0;
+            spherePoints[1] = 0;
+            spherePoints[2] = 0;
+            
+        }
+        else if (objectType == 3){
+            glutSolidTeapot(0.3);//draw cube
+        }
+        else if (objectType == 4){
+            glutSolidCone(0.2, 0.2, 15, 15);//draw cube
+        }
+        else if (objectType == 5){
+            glutSolidTetrahedron();
         }
         else {
             glEnable( GL_POINT_SMOOTH );
@@ -63,6 +79,31 @@ void objects::drawObjects(){
         glColor3f(1, 1, 1);
         glutWireCube(0.7);
     }
+}
+void objects::objectTranslateX(double x){
+    translateX = translateX + x;
+    //setObjectPoints(translateX, 0, 0);
+}
+
+void objects::objectTranslateY(double y){
+    translateY = translateY + y;
+    //setObjectPoints(0, translateY, 0);
+}
+void objects::objectTranslateZ(double z){
+    translateZ =translateZ + z;
+    //setObjectPoints(0, 0, translateZ);
+}
+void objects::objectRotateX(double x){
+    rotateX = rotateX + x;
+    //modifyRotationPoints(rotateX,0,0,1);
+}
+void objects::objectRotateY(double y){
+    rotateY = rotateY + y;
+    //modifyRotationPoints(0,rotateY,0,2);
+}
+void objects::objectRotateZ(double z){
+    rotateZ = rotateZ + z;
+    //modifyRotationPoints(0,0,rotateZ,3);
 }
 
 float objects::findDistance(int i){
@@ -135,17 +176,6 @@ void objects::setObjectPoints(float x, float y, float z){
     objectPointsForNormal[0][2][1] = -0.25 + y;
     objectPointsForNormal[0][2][2] = 0.25 + z;
     
-    //for vector 1
-    objectVectorForNormal[0][0][0] = objectPointsForNormal[0][1][0] - objectPointsForNormal[0][0][0];
-    objectVectorForNormal[0][0][1] = objectPointsForNormal[0][1][1] - objectPointsForNormal[0][0][1];
-    objectVectorForNormal[0][0][2] = objectPointsForNormal[0][1][2] - objectPointsForNormal[0][0][2];
-    
-    //for vector 2
-    objectVectorForNormal[0][1][0] = objectPointsForNormal[0][2][0] - objectPointsForNormal[0][0][0];
-    objectVectorForNormal[0][1][1] = objectPointsForNormal[0][2][1] - objectPointsForNormal[0][0][1];
-    objectVectorForNormal[0][1][2] = objectPointsForNormal[0][2][2] - objectPointsForNormal[0][0][2];
-    
-    
     //for left face
     objectPointsForNormal[1][0][0] = 0.25 + x;
     objectPointsForNormal[1][0][1] = -0.25 + y;
@@ -158,17 +188,6 @@ void objects::setObjectPoints(float x, float y, float z){
     objectPointsForNormal[1][2][0] = 0.25 + x;
     objectPointsForNormal[1][2][1] = -0.25 + y;
     objectPointsForNormal[1][2][2] = -0.25 + z;
-    
-    //for vector 1
-    objectVectorForNormal[1][0][0] = objectPointsForNormal[1][1][0] - objectPointsForNormal[1][0][0];
-    objectVectorForNormal[1][0][1] = objectPointsForNormal[1][1][1] - objectPointsForNormal[1][0][1];
-    objectVectorForNormal[1][0][2] = objectPointsForNormal[1][1][2] - objectPointsForNormal[1][0][2];
-    
-    //for vector 2
-    objectVectorForNormal[1][1][0] = objectPointsForNormal[1][2][0] - objectPointsForNormal[1][0][0];
-    objectVectorForNormal[1][1][1] = objectPointsForNormal[1][2][1] - objectPointsForNormal[1][0][1];
-    objectVectorForNormal[1][1][2] = objectPointsForNormal[1][2][2] - objectPointsForNormal[1][0][2];
-    
     
     //for top face
     objectPointsForNormal[2][0][0] = 0.25 + x;
@@ -183,17 +202,6 @@ void objects::setObjectPoints(float x, float y, float z){
     objectPointsForNormal[2][2][1] = 0.25 + y;
     objectPointsForNormal[2][2][2] = -0.25 + z;
     
-    //for vector 1
-    objectVectorForNormal[2][0][0] = objectPointsForNormal[2][0][0] - objectPointsForNormal[2][1][0];
-    objectVectorForNormal[2][0][1] = objectPointsForNormal[2][0][1] - objectPointsForNormal[2][1][1];
-    objectVectorForNormal[2][0][2] = objectPointsForNormal[2][0][2] - objectPointsForNormal[2][1][2];
-    
-    //for vector 2
-    objectVectorForNormal[2][1][0] = objectPointsForNormal[2][2][0] - objectPointsForNormal[2][1][0];
-    objectVectorForNormal[2][1][1] = objectPointsForNormal[2][2][1] - objectPointsForNormal[2][1][1];
-    objectVectorForNormal[2][1][2] = objectPointsForNormal[2][2][2] - objectPointsForNormal[2][1][2];
-    
-    
     //for bottom face
     objectPointsForNormal[3][0][0] = 0.25 + x;
     objectPointsForNormal[3][0][1] = -0.25 + y;
@@ -206,17 +214,7 @@ void objects::setObjectPoints(float x, float y, float z){
     objectPointsForNormal[3][2][0] = -0.25 + x;
     objectPointsForNormal[3][2][1] = -0.25 + y;
     objectPointsForNormal[3][2][2] = -0.25 + z;
-    
-    //for vector 1
-    objectVectorForNormal[3][0][0] = objectPointsForNormal[3][0][0] - objectPointsForNormal[3][1][0];
-    objectVectorForNormal[3][0][1] = objectPointsForNormal[3][0][1] - objectPointsForNormal[3][1][1];
-    objectVectorForNormal[3][0][2] = objectPointsForNormal[3][0][2] - objectPointsForNormal[3][1][2];
-    
-    //for vector 2
-    objectVectorForNormal[3][1][0] = objectPointsForNormal[3][2][0] - objectPointsForNormal[3][1][0];
-    objectVectorForNormal[3][1][1] = objectPointsForNormal[3][2][1] - objectPointsForNormal[3][1][1];
-    objectVectorForNormal[3][1][2] = objectPointsForNormal[3][2][2] - objectPointsForNormal[3][1][2];
-    
+
     //for back right face
     objectPointsForNormal[4][0][0] = -0.25 + x;
     objectPointsForNormal[4][0][1] = 0.25 + y;
@@ -229,20 +227,6 @@ void objects::setObjectPoints(float x, float y, float z){
     objectPointsForNormal[4][2][0] = 0.25 + x;
     objectPointsForNormal[4][2][1] = -0.25 + y;
     objectPointsForNormal[4][2][2] = -0.25 + z;
-    
-    //for vector 1
-    objectVectorForNormal[4][0][0] = objectPointsForNormal[4][0][0] - objectPointsForNormal[4][1][0];
-    objectVectorForNormal[4][0][1] = objectPointsForNormal[4][0][1] - objectPointsForNormal[4][1][1];
-    objectVectorForNormal[4][0][2] = objectPointsForNormal[4][0][2] - objectPointsForNormal[4][1][2];
-    
-
-    //for vector 2
-    objectVectorForNormal[4][1][0] = objectPointsForNormal[4][2][0] - objectPointsForNormal[4][1][0];
-    objectVectorForNormal[4][1][1] = objectPointsForNormal[4][2][1] - objectPointsForNormal[4][1][1];
-    objectVectorForNormal[4][1][2] = objectPointsForNormal[4][2][2] - objectPointsForNormal[4][1][2];
-    
-    printf("\n VECTOR 1 back left side normal = (%f,%f,%f)\n",objectVectorForNormal[4][0][0],objectVectorForNormal[4][0][1],objectVectorForNormal[4][0][2]);
-    printf("\n VECTOR 2 back left side normal = (%f,%f,%f)\n",objectVectorForNormal[4][1][0],objectVectorForNormal[4][1][1],objectVectorForNormal[4][1][2]);
     
     //for back left face
     objectPointsForNormal[5][0][0] = -0.25 + x;
@@ -257,6 +241,63 @@ void objects::setObjectPoints(float x, float y, float z){
     objectPointsForNormal[5][2][1] = -0.25 + y;
     objectPointsForNormal[5][2][2] = 0.25 + z;
     
+    createObjectVectors();
+    
+}
+
+void objects::createObjectVectors(){
+    //for vector 1
+    objectVectorForNormal[0][0][0] = objectPointsForNormal[0][1][0] - objectPointsForNormal[0][0][0];
+    objectVectorForNormal[0][0][1] = objectPointsForNormal[0][1][1] - objectPointsForNormal[0][0][1];
+    objectVectorForNormal[0][0][2] = objectPointsForNormal[0][1][2] - objectPointsForNormal[0][0][2];
+    
+    //for vector 2
+    objectVectorForNormal[0][1][0] = objectPointsForNormal[0][2][0] - objectPointsForNormal[0][0][0];
+    objectVectorForNormal[0][1][1] = objectPointsForNormal[0][2][1] - objectPointsForNormal[0][0][1];
+    objectVectorForNormal[0][1][2] = objectPointsForNormal[0][2][2] - objectPointsForNormal[0][0][2];
+    
+    //for vector 1
+    objectVectorForNormal[1][0][0] = objectPointsForNormal[1][1][0] - objectPointsForNormal[1][0][0];
+    objectVectorForNormal[1][0][1] = objectPointsForNormal[1][1][1] - objectPointsForNormal[1][0][1];
+    objectVectorForNormal[1][0][2] = objectPointsForNormal[1][1][2] - objectPointsForNormal[1][0][2];
+    
+    //for vector 2
+    objectVectorForNormal[1][1][0] = objectPointsForNormal[1][2][0] - objectPointsForNormal[1][0][0];
+    objectVectorForNormal[1][1][1] = objectPointsForNormal[1][2][1] - objectPointsForNormal[1][0][1];
+    objectVectorForNormal[1][1][2] = objectPointsForNormal[1][2][2] - objectPointsForNormal[1][0][2];
+    
+    //for vector 1
+    objectVectorForNormal[2][0][0] = objectPointsForNormal[2][0][0] - objectPointsForNormal[2][1][0];
+    objectVectorForNormal[2][0][1] = objectPointsForNormal[2][0][1] - objectPointsForNormal[2][1][1];
+    objectVectorForNormal[2][0][2] = objectPointsForNormal[2][0][2] - objectPointsForNormal[2][1][2];
+    
+    //for vector 2
+    objectVectorForNormal[2][1][0] = objectPointsForNormal[2][2][0] - objectPointsForNormal[2][1][0];
+    objectVectorForNormal[2][1][1] = objectPointsForNormal[2][2][1] - objectPointsForNormal[2][1][1];
+    objectVectorForNormal[2][1][2] = objectPointsForNormal[2][2][2] - objectPointsForNormal[2][1][2];
+    
+    
+    //for vector 1
+    objectVectorForNormal[3][0][0] = objectPointsForNormal[3][0][0] - objectPointsForNormal[3][1][0];
+    objectVectorForNormal[3][0][1] = objectPointsForNormal[3][0][1] - objectPointsForNormal[3][1][1];
+    objectVectorForNormal[3][0][2] = objectPointsForNormal[3][0][2] - objectPointsForNormal[3][1][2];
+    
+    //for vector 2
+    objectVectorForNormal[3][1][0] = objectPointsForNormal[3][2][0] - objectPointsForNormal[3][1][0];
+    objectVectorForNormal[3][1][1] = objectPointsForNormal[3][2][1] - objectPointsForNormal[3][1][1];
+    objectVectorForNormal[3][1][2] = objectPointsForNormal[3][2][2] - objectPointsForNormal[3][1][2];
+    
+    //for vector 1
+    objectVectorForNormal[4][0][0] = objectPointsForNormal[4][0][0] - objectPointsForNormal[4][1][0];
+    objectVectorForNormal[4][0][1] = objectPointsForNormal[4][0][1] - objectPointsForNormal[4][1][1];
+    objectVectorForNormal[4][0][2] = objectPointsForNormal[4][0][2] - objectPointsForNormal[4][1][2];
+    
+    
+    //for vector 2
+    objectVectorForNormal[4][1][0] = objectPointsForNormal[4][2][0] - objectPointsForNormal[4][1][0];
+    objectVectorForNormal[4][1][1] = objectPointsForNormal[4][2][1] - objectPointsForNormal[4][1][1];
+    objectVectorForNormal[4][1][2] = objectPointsForNormal[4][2][2] - objectPointsForNormal[4][1][2];
+    
     //for vector 1
     objectVectorForNormal[5][0][0] = objectPointsForNormal[5][0][0] - objectPointsForNormal[5][1][0];
     objectVectorForNormal[5][0][1] = objectPointsForNormal[5][0][1] - objectPointsForNormal[5][1][1];
@@ -269,4 +310,152 @@ void objects::setObjectPoints(float x, float y, float z){
     
     normalizePlane();
     
+}
+
+void objects::modifyRotationPoints(float rotX, float rotY, float rotZ, int angleChoice){
+    //for right face
+    double temp1, temp2;
+    float angle = 0.0;
+    int t1 = 0, t2 = 0;
+    if (angleChoice == 1){
+        t1 = 1;
+        t2 = 2;
+        angle = rotX;
+        printf("1");
+    }
+    else if(angleChoice == 2){
+        t1 = 2;
+        t2 = 0;
+        angle = rotY;
+        printf("2");
+    }
+    else if(angleChoice == 3){
+        t1 = 0;
+        t2 = 1;
+        angle = rotZ;
+        printf("3");
+    }
+    temp1 = objectPointsForNormal[0][0][t1];
+    temp2 = objectPointsForNormal[0][0][t2];
+    
+    objectPointsForNormal[0][0][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[0][0][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    temp1 = objectPointsForNormal[0][1][t1];
+    temp2 = objectPointsForNormal[0][1][t2];
+    
+    objectPointsForNormal[0][1][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[0][1][t2] = temp1*sin(angle) + temp2*cos(angle);
+
+    temp1 = objectPointsForNormal[0][2][t1];
+    temp2 = objectPointsForNormal[0][2][t2];
+    
+    objectPointsForNormal[0][2][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[0][2][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    //
+    
+    temp1 = objectPointsForNormal[1][0][t1];
+    temp2 = objectPointsForNormal[1][0][t2];
+    
+    objectPointsForNormal[1][0][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[1][0][t2] = temp1*sin(angle) + temp2*cos(angle);
+
+    
+    temp1 = objectPointsForNormal[1][1][t1];
+    temp2 = objectPointsForNormal[1][1][t2];
+    
+    objectPointsForNormal[1][1][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[1][1][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    temp1 = objectPointsForNormal[1][2][t1];
+    temp2 = objectPointsForNormal[1][2][t2];
+    
+    objectPointsForNormal[1][2][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[1][2][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    temp1 = objectPointsForNormal[2][0][t1];
+    temp2 = objectPointsForNormal[2][0][t2];
+    
+    objectPointsForNormal[2][0][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[2][0][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    temp1 = objectPointsForNormal[2][1][t1];
+    temp2 = objectPointsForNormal[2][1][t2];
+    
+    objectPointsForNormal[2][1][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[2][1][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    
+    temp1 = objectPointsForNormal[2][2][t1];
+    temp2 = objectPointsForNormal[2][2][t2];
+    
+    objectPointsForNormal[2][2][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[2][2][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    //
+    
+    //for bottom face
+    temp1 = objectPointsForNormal[3][0][t1];
+    temp2 = objectPointsForNormal[3][0][t2];
+    
+    objectPointsForNormal[3][0][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[3][0][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    temp1 = objectPointsForNormal[3][1][t1];
+    temp2 = objectPointsForNormal[3][1][t2];
+    
+    objectPointsForNormal[3][1][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[3][1][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    
+    temp1 = objectPointsForNormal[3][2][t1];
+    temp2 = objectPointsForNormal[3][2][t2];
+    
+    objectPointsForNormal[3][2][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[3][2][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    //
+    
+    temp1 = objectPointsForNormal[4][0][t1];
+    temp2 = objectPointsForNormal[4][0][t2];
+    
+    objectPointsForNormal[4][0][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[4][0][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    temp1 = objectPointsForNormal[4][1][t1];
+    temp2 = objectPointsForNormal[4][1][t2];
+    
+    objectPointsForNormal[4][1][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[4][1][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    
+    temp1 = objectPointsForNormal[4][2][t1];
+    temp2 = objectPointsForNormal[4][2][t2];
+    
+    objectPointsForNormal[4][2][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[4][2][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    //
+    
+    temp1 = objectPointsForNormal[5][0][t1];
+    temp2 = objectPointsForNormal[5][0][t2];
+    
+    objectPointsForNormal[5][0][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[5][0][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    temp1 = objectPointsForNormal[5][1][t1];
+    temp2 = objectPointsForNormal[5][1][t2];
+    
+    objectPointsForNormal[5][1][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[5][1][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    
+    temp1 = objectPointsForNormal[5][2][t1];
+    temp2 = objectPointsForNormal[5][2][t2];
+    
+    objectPointsForNormal[5][2][t1] = temp1*cos(angle) - temp2*sin(angle);
+    objectPointsForNormal[5][2][t2] = temp1*sin(angle) + temp2*cos(angle);
+    
+    createObjectVectors();
 }

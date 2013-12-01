@@ -19,8 +19,10 @@ class objects{
         double objectPlaneNormal[6][3];
         double objectPointsForNormal[6][3][3];
         double objectVectorForNormal[6][2][3];
+        double spherePoints[3];
         double rotationAngle;
         double translateX = 0, translateY = 0, translateZ = 0;
+        double rotateX = 0, rotateY = 0, rotateZ = 0;
         bool hit = false;
         int objectType;
         int drawingMaterial; //indicate which choice made by user via integer
@@ -32,7 +34,15 @@ class objects{
         float normalMultiplyOrgin(int i, float t);
         void drawObjects();
         void setObjectPoints(float x, float y, float z);
+        void modifyRotationPoints(float rotX, float rotY, float rotZ, int angleChoice);
+        void createObjectVectors();
         float findDistance(int i);
+        void objectTranslateX(double x);
+        void objectTranslateY(double y);
+        void objectTranslateZ(double z);
+        void objectRotateX(double x);
+        void objectRotateY(double y);
+        void objectRotateZ(double z);
 
 };
 

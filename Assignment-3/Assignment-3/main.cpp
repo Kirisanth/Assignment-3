@@ -36,6 +36,7 @@ objects objectsList[20];
 int numOfObjects = 0;
 float translateX = 0, translateY = 0, translateZ = 0;
 int targetObject = false;
+float rotateX = 0, rotateY = 0, rotateZ = 0;
 
 //lighting
 
@@ -72,6 +73,26 @@ void Get3DPos(int x, int y, float winz, GLdouble point[3])
 //    return -1 * (0*newRay.norm[0] + 0*newRay.norm[1] + 0*newRay.norm[2]);
 //}
 
+bool rayPlaneTest(int count, int i){
+    float t = objectsList[count].normalMultiplyDirection(i);
+    if (t != 0){
+        t = objectsList[count].normalMultiplyOrgin(i, t);
+        inter[0] = objectsList[count].org[0] + t*objectsList[count].norm[0];
+        inter[1] = objectsList[count].org[1] + t*objectsList[count].norm[1];
+        inter[2] = objectsList[count].org[2] + t*objectsList[count].norm[2];
+        return true;
+    }
+    else {
+        return false;
+    }
+    
+}
+
+void spehereRayTest(int count, int i){
+    
+
+}
+
 /* rayCast - takes a mouse x,y, coordinate, and casts a ray through that point
  *   for subsequent intersection tests with objects.
  */
@@ -93,20 +114,12 @@ void rayCast(float x, float y)
 	objectsList[count].dir[1] = pFar[1] - pNear[1];
 	objectsList[count].dir[2] = pFar[2] - pNear[2];
     
+    if (objectsList[count].objectType == 2){
+        spehereRayTest(count, i);
+    }
+    else{
     objectsList[count].normalizeDirection();
-
-    float t = objectsList[count].normalMultiplyDirection(i);
-    if (t != 0){
-        t = objectsList[count].normalMultiplyOrgin(i, t);
-        inter[0] = objectsList[count].org[0] + t*objectsList[count].norm[0];
-        inter[1] = objectsList[count].org[1] + t*objectsList[count].norm[1];
-        inter[2] = objectsList[count].org[2] + t*objectsList[count].norm[2];
-        groundPlane = true;
-    }
-    else {
-        groundPlane = false;
-    }
-    
+    groundPlane = rayPlaneTest(count, i);
 	//update the position of the object to the intersection point
     if ( groundPlane == true){
         objectPos[0] = inter[0];
@@ -124,6 +137,8 @@ void rayCast(float x, float y)
             objectsList[count].hit = false;
         }
         
+    
+    }
     }
     }
         if(hit == true){
@@ -136,6 +151,7 @@ void rayCast(float x, float y)
         }
     }
 }
+
 
 /* drawAxis() -- draws an axis at the origin of the coordinate system
  *   red = +X axis, green = +Y axis, blue = +Z axis
@@ -167,7 +183,6 @@ void display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
-    drawAxis();
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize(10);
     glBegin(GL_POINTS);
@@ -175,25 +190,19 @@ void display()
     glEnd();
     
     glPushMatrix();
-
-    glRotatef(angY, 0, 0, 1);//rotate scene around x axis
-    glRotatef(angZ, 0, 1, 0);//rotate scene around y axis
+    
+    glRotatef(angY, 0, 1, 0);//rotate scene around x axis
+    glRotatef(angZ, 0, 0, 1);//rotate scene around y axis
     for (int x = 0; x < numOfObjects; x++){
         glPushMatrix();
         objectsList[x].drawObjects();
         glPopMatrix();
     }
-    
+    drawAxis();
 	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
 	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
 	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
 	float shiny = 27;
-    
-    //rayCast(x,y);
-	//clear the screen
-    //drawCube();
-	//optionally draw the axis
-    
 	float amb[4] = {1.0, 1, 1, 1};
 	float diff[4] = {1,0,0, 1};
 	float spec[4] = {0,0,1, 1};
@@ -209,11 +218,6 @@ void display()
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_spec);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
     
-    //glutSolidTeapot(1);
-    
-	//pop the matrix back to what it was prior to the rotation
-    //	glPopMatrix();
-	
 	//swap buffers - rendering is done to the back buffer, bring it forward to display
     glLoadIdentity();
     glPopMatrix();
@@ -236,6 +240,41 @@ void idle()
 void kbd(unsigned char key, int x, int y)
 {
     
+    if(key == '1'){
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectType = 1;
+            }
+        }
+    }
+    if(key == '2'){
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectType = 2;
+            }
+        }
+    }
+    if(key == '3'){
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectType = 3;
+            }
+        }
+    }
+    if(key == '4'){
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectType = 4;
+            }
+        }
+    }
+    if(key == '5'){
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectType = 5;
+            }
+        }
+    }
 	//if the "q" key is pressed, quit the program
 	if(key == 'q' || key == 'Q')
 	{
@@ -273,53 +312,103 @@ void kbd(unsigned char key, int x, int y)
     }
     if (key == 'x'){
         //int mod = glutGetModifiers();
-        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
-			translateX = translateX - 0.1;
-            printf("asdfasdfa");
-        }
-		else{
-			translateX = translateX + 0.1;
-        }
+        translateX = 0.1;
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
-                objectsList[count].setObjectPoints(translateX, 0, 0);
-                objectsList[count].translateX = translateX;
+                objectsList[count].objectTranslateX(translateX);
+            }
+        }
+    }
+    if (key == 'X'){
+        //int mod = glutGetModifiers();
+        translateX = -0.1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectTranslateX(translateX);
             }
         }
     }
 
     if (key == 'y'){
-        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
-			translateY = translateY - 0.1;
-            printf("asdfasdfa");
-        }
-		else{
-			translateY = translateY + 0.1;
-        }
+        translateY = 0.1;
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
-                objectsList[count].setObjectPoints(translateY, 0, 0);
-                objectsList[count].translateY = translateY;
+                objectsList[count].objectTranslateY(translateY);
             }
         }
-        
+    }
+    if (key == 'Y'){
+        translateY = -0.1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectTranslateY(translateY);
+            }
+        }
     }
     if (key == 'z'){
-    
-        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
-			translateZ = translateZ - 0.1;
-            printf("asdfasdfa");
-        }
-		else{
-			translateZ = translateZ + 0.1;
-        }
+        translateZ = 0.1;
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
-                objectsList[count].setObjectPoints(translateZ, 0, 0);
-                objectsList[count].translateZ = translateZ;
+                 objectsList[count].objectTranslateZ(translateZ);
             }
         }
-        
+    }
+    
+    if (key == 'Z'){
+        translateZ = -0.1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectTranslateZ(translateZ);
+            }
+        }
+    }
+    if (key == 'i'){
+         rotateX = 1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectRotateX(rotateX);
+            }
+        }
+    }
+    if (key == 'I'){
+        rotateX = -1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectRotateX(rotateX);
+            }
+        }
+    }
+    if (key == 'u'){
+        rotateY = 1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectRotateY(rotateY);
+            }
+        }
+    }
+    if (key == 'U'){
+        rotateY = -1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectRotateY(rotateY);
+            }
+        }
+    }
+    if (key == 'o'){
+        rotateZ = 1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectRotateZ(rotateZ);
+            }
+        }
+    }
+    if (key == 'O'){
+        rotateZ = -1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectRotateZ(rotateZ);
+            }
+        }
     }
 }
 
@@ -380,16 +469,16 @@ void processSpecialKeys(int key, int x, int y) {
     //Responsible for camera movement, press right to turn right, left for left, up for up and down for down
     switch(key) {
 		case GLUT_KEY_UP:
-            angY = angY +1;
-            break;
-		case GLUT_KEY_DOWN :
-            angY = angY -1;
-            break;
-        case GLUT_KEY_LEFT:
             angZ = angZ + 1;
             break;
-        case GLUT_KEY_RIGHT:
+		case GLUT_KEY_DOWN :
             angZ = angZ - 1;
+            break;
+        case GLUT_KEY_LEFT:
+            angY = angY -1;
+            break;
+        case GLUT_KEY_RIGHT:
+            angY = angY +1;
             break;
 	}
     
@@ -408,7 +497,7 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(15, 1, 1, 100);
+	gluPerspective(25, 1, 1, 100);
     
 	glMatrixMode(GL_MODELVIEW);
     glutMouseFunc(mouse);
