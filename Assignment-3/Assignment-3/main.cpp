@@ -27,8 +27,6 @@ float posz = 10;
 float posw = 10.5;
 float posmovx = 0, posmovy = 0, posmovz = 0;
 float position[4] = {posx, posy , posz, posw};
-float planeNormal[6][3] = {{0,1,0},{-0.125,0,0},{0,0,0.125},{0.25,0,0},{0,0,-0.25}};//TOP,LEFT,RIGHT,BACKRIGHT,BACKLEFT,BOTTOM
-float planePoints[6][3] = {{0.25,0.25,0},{0,-0.25,0.25},{0.25,-0.25,0.25},{0.25,0.25,0.25},{-0.25,-0.25,-0.25},{0.25,-0.25,-0.25}};
 GLdouble newPoint [3];
 GLdouble pNear[3];
 GLdouble pFar[3]; //declare the two points
@@ -36,6 +34,8 @@ bool hit = false;
 int x, y, z;
 objects objectsList[20];
 int numOfObjects = 0;
+float translateX = 0, translateY = 0, translateZ = 0;
+int targetObject = false;
 
 //lighting
 
@@ -46,6 +46,10 @@ int numOfObjects = 0;
  *  returns (via point array) the 3D point corresponding to the distance along
  *  the mouse ray at depth winz
  */
+
+void findObjectNormal() {
+
+}
 
 void Get3DPos(int x, int y, float winz, GLdouble point[3])
 {
@@ -73,44 +77,30 @@ void Get3DPos(int x, int y, float winz, GLdouble point[3])
  */
 void rayCast(float x, float y)
 {
-	float d;
     
-    for (int i = 0; i < 5; i++){
-	//get 3D position of mouse cursor on near and far clipping planes
+    for (int count = 0; count < numOfObjects; count++){ 
+    for (int i = 0; i < 6; i++){
+        
 	Get3DPos(x, y, 0.0, pNear);
 	Get3DPos(x, y, 1.0, pFar);
-    
-	//create a ray originating at the camera position, and using the vector between the two points for the direction
-	objects newRay;
-	newRay.org[0] = camera[0];
-	newRay.org[1] = camera[1];
-	newRay.org[2] = camera[2];
+        
+	objectsList[count].org[0] = camera[0];
+	objectsList[count].org[1] = camera[1];
+	objectsList[count].org[2] = camera[2];
 	
 	//ray direction is the vector (pFar - pNear)
-	newRay.dir[0] = pFar[0] - pNear[0];
-	newRay.dir[1] = pFar[1] - pNear[1];
-	newRay.dir[2] = pFar[2] - pNear[2];
+	objectsList[count].dir[0] = pFar[0] - pNear[0];
+	objectsList[count].dir[1] = pFar[1] - pNear[1];
+	objectsList[count].dir[2] = pFar[2] - pNear[2];
     
-	//normalize the ray direction
-	//normalize(newRay);
-    
-    float length;
-    length = sqrt((newRay.dir[0]*newRay.dir[0]) + (newRay.dir[1] * newRay.dir[1]) + (newRay.dir[2] * newRay.dir[2]));
-    newRay.norm[0] = newRay.dir[0]/length *-1;
-    newRay.norm[1] = newRay.dir[1]/length *-1;
-    newRay.norm[2] = newRay.dir[2]/length *-1;
-    
-    //printf("%f %f %f\n", newRay.norm[0], newRay.norm[1], newRay.norm[2]);
-    
-    d = -1 * (planePoints[i][0]*planeNormal[i][0] + planePoints[i][1]*planeNormal[i][1] + planePoints[i][2]*planeNormal[i][2]);
-    
-    float t = (planeNormal[i][0] *  newRay.norm[0] + planeNormal[i][1] * newRay.norm[1] + planeNormal[i][2] * newRay.norm[2]);
-    
+    objectsList[count].normalizeDirection();
+
+    float t = objectsList[count].normalMultiplyDirection(i);
     if (t != 0){
-        t = (-1* (planeNormal[i][0] * newRay.org[0] + planeNormal[i][1] * newRay.org[1] + planeNormal[i][2] * newRay.org[2] + d))/t;
-        inter[0] = newRay.org[0] + t*newRay.norm[0];
-        inter[1] = newRay.org[1] + t*newRay.norm[1];
-        inter[2] = newRay.org[2] + t*newRay.norm[2];
+        t = objectsList[count].normalMultiplyOrgin(i, t);
+        inter[0] = objectsList[count].org[0] + t*objectsList[count].norm[0];
+        inter[1] = objectsList[count].org[1] + t*objectsList[count].norm[1];
+        inter[2] = objectsList[count].org[2] + t*objectsList[count].norm[2];
         groundPlane = true;
     }
     else {
@@ -123,55 +113,28 @@ void rayCast(float x, float y)
         objectPos[1] = inter[1];
         objectPos[2] = inter[2];
         
-        printf("%f\n",objectPos[0]);
-        printf("%f\n",objectPos[1]);
-        printf("%f\n",objectPos[2]);
-        printf("dsfasdfa\n");
-        
-        if ((-0.25 < objectPos[0] && objectPos[0] < 0.25 && -0.25 < objectPos[2] && objectPos[2] < 0.25)){
+        if ((-0.25 + objectsList[count].translateX < objectPos[0] && objectPos[0] < 0.25 + objectsList[count].translateX && -0.25 + objectsList[count].translateZ < objectPos[2] && objectPos[2] < 0.25 + objectsList[count].translateZ && objectPos[1] < 0.25 + objectsList[count].translateY && -0.25 + objectsList[count].translateY < objectPos[1])){
                 hit = true;
-                printf("\ntrue");
+                targetObject = count;
+                objectsList[count].hit = true;
                 break;
         }
         else{
             hit = false;
+            objectsList[count].hit = false;
         }
         
     }
     }
-}
-
-void drawCube()
-{
-	glBegin(GL_QUADS);
-	
-    
-    
-    glColor3f(1, 0.5, 0.5);
-    glVertex3f(-0.5,0,0.5);
-    glVertex3f(0.5,0,0.5);
-    glVertex3f(0.5,0.5,-0.5);
-    glVertex3f(-0.5,0.5,-0.5);
-    
-    glColor3f(1, 0.5, 0.5);
-    glVertex3f(-0.5,1,0.5);
-    glVertex3f(0.5,1,0.5);
-    glVertex3f(0.5,1,-0.5);
-    glVertex3f(-0.5,1,-0.5);
-    
-    
-	glEnd();
-    
-    glLineWidth(2.5);
-    glColor3f(1, 1, 1);
-    glBegin(GL_LINES);
-    glVertex3f(-0.5,0,0.5);
-    glVertex3f(0.5,0.5,-0.5);
-    
-    glVertex3f(0.5,0,0.5);
-    glVertex3f(-0.5,0.5,-0.5);
-    
-    glEnd();
+        if(hit == true){
+            for(int z = 0; z < numOfObjects; z++){
+                if(z != count){
+                    objectsList[z].hit = false;
+                }
+            }
+            break;
+        }
+    }
 }
 
 /* drawAxis() -- draws an axis at the origin of the coordinate system
@@ -204,20 +167,23 @@ void display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
+    drawAxis();
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    glPointSize(10);
+    glBegin(GL_POINTS);
+    glVertex3f(objectPos[0],objectPos[1],objectPos[2]);//draw point
+    glEnd();
     
     glPushMatrix();
-    for (int x = 0; x < numOfObjects; x++){
-        objectsList[x].drawObjects();
-    }
-    
+
     glRotatef(angY, 0, 0, 1);//rotate scene around x axis
     glRotatef(angZ, 0, 1, 0);//rotate scene around y axis
-    glColor3f(0, 0.5, 0.5);
-    //glutSolidCube(0.5);
-    if (hit == true){
-    glColor3f(1, 1, 1);
-    glutWireCube(0.7);
+    for (int x = 0; x < numOfObjects; x++){
+        glPushMatrix();
+        objectsList[x].drawObjects();
+        glPopMatrix();
     }
+    
 	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
 	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
 	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
@@ -227,14 +193,6 @@ void display()
 	//clear the screen
     //drawCube();
 	//optionally draw the axis
-	drawAxis();
-    
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glPointSize(10);
-    glBegin(GL_POINTS);
-    glVertex3f(objectPos[0],objectPos[1],objectPos[2]);//draw point
-    glEnd();
-    
     
 	float amb[4] = {1.0, 1, 1, 1};
 	float diff[4] = {1,0,0, 1};
@@ -257,6 +215,7 @@ void display()
     //	glPopMatrix();
 	
 	//swap buffers - rendering is done to the back buffer, bring it forward to display
+    glLoadIdentity();
     glPopMatrix();
 	glutSwapBuffers();
     
@@ -276,6 +235,7 @@ void idle()
  */
 void kbd(unsigned char key, int x, int y)
 {
+    
 	//if the "q" key is pressed, quit the program
 	if(key == 'q' || key == 'Q')
 	{
@@ -302,20 +262,71 @@ void kbd(unsigned char key, int x, int y)
     if (key == 'b')
     {
         idle();
-        //        glutPostRedisplay();
     }
     if (key == 'a'){
         objects newObject;
         newObject.objectType = 1;
+        newObject.setObjectPoints(0,0,0);
         objectsList[numOfObjects] = newObject;
         numOfObjects++;
+        printf("NumbOfObjects %i", numOfObjects);
+    }
+    if (key == 'x'){
+        //int mod = glutGetModifiers();
+        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
+			translateX = translateX - 0.1;
+            printf("asdfasdfa");
+        }
+		else{
+			translateX = translateX + 0.1;
+        }
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].setObjectPoints(translateX, 0, 0);
+                objectsList[count].translateX = translateX;
+            }
+        }
+    }
+
+    if (key == 'y'){
+        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
+			translateY = translateY - 0.1;
+            printf("asdfasdfa");
+        }
+		else{
+			translateY = translateY + 0.1;
+        }
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].setObjectPoints(translateY, 0, 0);
+                objectsList[count].translateY = translateY;
+            }
+        }
+        
+    }
+    if (key == 'z'){
+    
+        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
+			translateZ = translateZ - 0.1;
+            printf("asdfasdfa");
+        }
+		else{
+			translateZ = translateZ + 0.1;
+        }
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].setObjectPoints(translateZ, 0, 0);
+                objectsList[count].translateZ = translateZ;
+            }
+        }
+        
     }
 }
 
 void init(void)
 {
 	glClearColor(0, 0, 0, 0);
-	glColor3f(1, 1, 1);
+
     
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT1);
@@ -351,7 +362,7 @@ void mouse(int btn, int state, int x, int y)
    
 	if(btn == GLUT_LEFT_BUTTON)
 	{
-        //Get3DPos(x,y,0,newPoint);
+
         rayCast(x, y);
 	}
 	if(btn == GLUT_RIGHT_BUTTON)
@@ -397,16 +408,9 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//glOrtho(-2.5, 2.5, -2.5, 2.5, -2.5, 2.5);
 	gluPerspective(15, 1, 1, 100);
     
-    //	//set clear colour to white
-    //	glClearColor(1, 1, 1, 0);
-    
 	glMatrixMode(GL_MODELVIEW);
- 
-	//glRotatef(0, camera[0], camera[1], camera[2]);
-    
     glutMouseFunc(mouse);
     
 	//register glut callbacks for keyboard and display function
