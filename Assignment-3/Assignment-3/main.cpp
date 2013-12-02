@@ -63,6 +63,38 @@ void findObjectNormal() {
 
 }
 
+void loadNumberOfObjects()
+{
+
+    std::string line;
+    std::ifstream myfile ("num.txt");
+
+
+    if (myfile.is_open())
+    {
+        while ( getline (myfile,line) )
+        {
+            //            cout << line << endl;
+            numOfObjects = atoi(line.c_str());
+
+
+            //            double val = strtod(text.c_str(), NULL) + 2;
+            //            printf("\n%f",val);
+//            string word;
+//            stringstream stream(line);
+//            while( getline(stream, word, ',') )
+//                cout << word << "\n";
+//            cout << "------------\n";
+        }
+        myfile.close();
+        
+        
+        
+        
+    }
+    else std::cout << "Unable to open file";
+}
+
 void loadFile2(objects objects[20], int size)
 {
     std::string line;
@@ -587,10 +619,10 @@ void kbd(unsigned char key, int x, int y)
     {
         //Loop through array and save content into a file
         FileIO test;
-//        test.writeFile(bobby, 5);
         
-        //test on object
         test.saveFile(objectsList, globalsize);
+        test.saveNumberOfObjects(numOfObjects);
+        
     }
     if(key == 'l')
     {
@@ -598,6 +630,7 @@ void kbd(unsigned char key, int x, int y)
 //        FileIO test;
 //        test.readFile(&loadedStringObjects, globalsize);
 //        test.loadFile(&loadedStringObjects, globalsize);
+        loadNumberOfObjects();
         loadFile2(&objectsList[20], 20);
         std::cout << "red";
         

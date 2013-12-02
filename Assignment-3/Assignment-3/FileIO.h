@@ -23,6 +23,8 @@ public:
     void readFile(std::string *x[], int size);
     void saveFile(objects x[], int size);
     void loadFile(std::string *loadedString[], int size);
+    void saveNumberOfObjects();
+    void saveNumberOfObjects(int numberOfObjects);
     FileIO();
 };
 

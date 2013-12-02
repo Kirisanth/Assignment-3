@@ -81,6 +81,17 @@ void FileIO::saveFile(objects x[], int size)
     myfile.close();
 }
 
+void FileIO::saveNumberOfObjects(int numberOfObjects)
+{
+    // basic file operations
+    ofstream myfile;
+    myfile.open ("num.txt");
+    
+    myfile << std::to_string(numberOfObjects) << "\n";
+    
+    myfile.close();
+}
+
 void FileIO::loadFile(string *loadedString[], int size)
 {
     string returnVal;
