@@ -18,11 +18,11 @@
 
 #include <math.h>
 int ang = 0;	//angle for rotating cube
-double camera[3] = {9,9,9};
-float objectPos[3];
-float inter[3];
-bool groundPlane = true;
-float mouseX, mouseY, mouseZ;
+double camera[3] = {9,9,9};//declares camera at position   
+float objectPos[3];//stores object position
+float inter[3];//stores object intersection
+bool groundPlane = true;//check if hit on plane
+float mouseX, mouseY, mouseZ;//traacks mouse coords
 //float posx, posy, posz;
 float angY = 0;//roation around Y
 float angZ = 0;//rotation around X
@@ -33,16 +33,15 @@ float posz = 3;
 float posw = 3.5;
 float posmovx = 0, posmovy = 0, posmovz = 0;
 float position[4] = {posx, posy , posz, posw};
-GLdouble newPoint [3];
-GLdouble pNear[3];
-GLdouble pFar[3]; //declare the two points
-bool hit = false;
-int x, y, z;
-objects objectsList[20];
-int numOfObjects = 0;
-float translateX = 0, translateY = 0, translateZ = 0;
-int targetObject = false;
-float rotateX = 0, rotateY = 0, rotateZ = 0;
+GLdouble newPoint [3];//decalres new point
+GLdouble pNear[3];//depth for z
+GLdouble pFar[3]; //depth for z
+bool hit = false;//checks if hit or not
+objects objectsList[20];//stores each object
+int numOfObjects = 0;//tracks number of objects
+float translateX = 0, translateY = 0, translateZ = 0;//tracks rotation
+int targetObject = false;//marks hit object
+float rotateX = 0, rotateY = 0, rotateZ = 0;//rotates objects
 std::string * loadedStringObjects = new std::string [20];
 int globalsize = 20;
 float scale;
