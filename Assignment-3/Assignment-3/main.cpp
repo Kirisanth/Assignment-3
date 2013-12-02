@@ -55,6 +55,12 @@ double color[3][3];//color of plane
 int textureChoice = 0;//choice of texture of plane
 int colorChoice = 0;//choice of color of plane
 
+//materials
+float m_amb[4];//ambient
+float m_dif[4];//diffusion
+float m_spec[4];//specular
+float shiny;
+
 //lighting
 
 /* drawCube() -- draws a cube with different coloured sides using QUAD primitives */
@@ -430,14 +436,15 @@ void display()
     
     //TODO:Change to global variables
 //    float origin[] = {0,0,0,1};
-    float m_amb[] = {0.33, 0.22, 0.03, 1.0};
-    float m_dif[] = {0.78, 0.57, 0.11, 1.0};
-    float m_spec[] = {0.99, 0.91, 0.81, 1.0};
+//    float m_amb[] = {0.33, 0.22, 0.03, 1.0};
+//    float m_dif[] = {0.78, 0.57, 0.11, 1.0};
+//    float m_spec[] = {0.99, 0.91, 0.81, 1.0};
 //    float shiny = 50;
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_spec);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
     
     glPushMatrix();
     
@@ -724,25 +731,102 @@ void kbd(unsigned char key, int x, int y)
     if(key == 'l')
     {
         //Reads File and stores in global array
-//        FileIO test;
-//        test.readFile(&loadedStringObjects, globalsize);
-//        test.loadFile(&loadedStringObjects, globalsize);
+
         loadNumberOfObjects();
         loadFile2(&objectsList[20], 20);
         std::cout << "red";
         
-//        std::cout << loadedStringObjects[1];
-//        std::cout << loadedStringObjects[2];
         glutPostRedisplay();
     }
     
     if (key == 'h'){
         for (int count = 0; count < numOfObjects;count++){
-                objectsList[count].deleteObject();
+            objectsList[count].deleteObject();
         }
         
     }
-    
+    if(key == 'g')
+    {
+        m_amb[0] = 0.33;
+        m_amb[1] = 0.22;
+        m_amb[2] = 0.03;
+        m_amb[3] = 1.0;
+        m_dif[0] = 0.98;
+        m_dif[1] = 0.97;
+        m_dif[2] = 0.91;
+        m_dif[3] = 1.0;
+        m_spec[0] = 0.10;
+        m_spec[1] = 0.11;
+        m_spec[2] = 0.11;
+        m_spec[3] = 1.0;
+        shiny = 50;
+    }
+    if(key == 'v')
+    {
+        m_amb[0] = 0.33;
+        m_amb[1] = 0.22;
+        m_amb[2] = 0.03;
+        m_amb[3] = 1.0;
+        m_dif[0] = 0.98;
+        m_dif[1] = 0.97;
+        m_dif[2] = 0.91;
+        m_dif[3] = 1.0;
+        m_spec[0] = 1.0;
+        m_spec[1] = 1.0;
+        m_spec[2] = 1.0;
+        m_spec[3] = 1.0;
+        shiny = 50;
+    }
+    if(key == 'n')
+    {
+        m_amb[0] = 0.33;
+        m_amb[1] = 0.22;
+        m_amb[2] = 0.03;
+        m_amb[3] = 1.0;
+        m_dif[0] = 0.18;
+        m_dif[1] = 0.07;
+        m_dif[2] = 0.11;
+        m_dif[3] = 1.0;
+        m_spec[0] = 0.99;
+        m_spec[1] = 0.91;
+        m_spec[2] = 0.81;
+        m_spec[3] = 1.0;
+        shiny = 50;
+    }
+    if(key == 'h')
+    {
+        m_amb[0] = 0.53;
+        m_amb[1] = 0.22;
+        m_amb[2] = 0.23;
+        m_amb[3] = 1.0;
+        m_dif[0] = 0.78;
+        m_dif[1] = 0.57;
+        m_dif[2] = 0.51;
+        m_dif[3] = 1.0;
+        m_spec[0] = 0.09;
+        m_spec[1] = 0.61;
+        m_spec[2] = 0.41;
+        m_spec[3] = 1.0;
+        shiny = 20;
+    }
+    if(key == 'd')
+    {
+        shiny = 50;
+        m_amb[0] = 0.13;
+        m_amb[1] = 0.25;
+        m_amb[2] = 0.93;
+        m_amb[3] = 1.0;
+        m_dif[0] = 0.28;
+        m_dif[1] = 0.47;
+        m_dif[2] = 0.71;
+        m_dif[3] = 1.0;
+        m_spec[0] = 0.19;
+        m_spec[1] = 0.11;
+        m_spec[2] = 0.81;
+        m_spec[3] = 1.0;
+        shiny = 100;
+    }
+
 }
 
 //set texture and color 
