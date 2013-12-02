@@ -46,8 +46,14 @@ float rotateX = 0, rotateY = 0, rotateZ = 0;
 std::string * loadedStringObjects = new std::string [20];
 int globalsize = 20;
 float scale;
-static GLubyte checkImage[64][64][4];
+static GLubyte texImage[64][64][4];
 static GLuint texName[2];
+
+double texture[3][4][2];
+bool deleteObject = false;
+double color[3][3];
+int textureChoice = 0;
+int colorChoice = 0;
 
 //lighting
 
@@ -271,6 +277,9 @@ void rayCast(float x, float y)
             hit = true;
             targetObject = count;
             objectsList[count].hit = true;
+            if (deleteObject == true){
+                objectsList[count].deleteObject();
+            }
             break;
         }
 
@@ -321,25 +330,28 @@ void makeCheckImages(void)
     for (i = 0; i < 64; i++) {
         for (j = 0; j < 64; j++) {
             c = ((((i&0x8)==0)^(((j&0x8))==0)))*255;
-            checkImage[i][j][0] = (GLubyte) c;
-            checkImage[i][j][1] = (GLubyte) c;
-            checkImage[i][j][2] = (GLubyte) c;
-            checkImage[i][j][3] = (GLubyte) 255;
+            texImage[i][j][0] = (GLubyte) c;
+            texImage[i][j][1] = (GLubyte) c;
+            texImage[i][j][2] = (GLubyte) c;
+            texImage[i][j][3] = (GLubyte) 255;
         }
     }
 }
 
 void drawPlatform(){
     //bottom
-    
     glBindTexture(GL_TEXTURE_2D, texName[0]);
     glBegin(GL_QUADS);
-    glColor3f(0.5, 0, 0.3);
-    glTexCoord2f(0.0, 0.0); glVertex3f(-2.8,-0.3,2.8);
-    glTexCoord2f(0.0, 1.0); glVertex3f(2.8,-0.3,2.8);
-    glTexCoord2f(1.0, 1.0); glVertex3f(2.8,-0.3,-2.8);
-    glTexCoord2f(1.0, 0.0); glVertex3f(-2.8,-0.3,-2.8);
     
+    glColor3f(color[colorChoice][0], color[colorChoice][1], color[colorChoice][2]);
+    glTexCoord2f(texture[textureChoice][0][0], texture[textureChoice][0][1]);
+    glVertex3f(-2.8,-0.3,2.8);
+    glTexCoord2f(texture[textureChoice][1][0], texture[textureChoice][1][1]);
+    glVertex3f(2.8,-0.3,2.8);
+    glTexCoord2f(texture[textureChoice][2][0], texture[textureChoice][2][1]);
+    glVertex3f(2.8,-0.3,-2.8);
+    glTexCoord2f(texture[textureChoice][3][0], texture[textureChoice][3][1]);
+    glVertex3f(-2.8,-0.3,-2.8);
     glEnd();
 }
 
@@ -473,6 +485,18 @@ void kbd(unsigned char key, int x, int y)
                 objectsList[count].objectType = 5;
             }
         }
+    }
+    if(key == '7'){
+        textureChoice = 0;
+        colorChoice = 0;
+    }
+    if(key == '8'){
+        textureChoice = 1;
+        colorChoice = 1;
+    }
+    if(key == '9'){
+        textureChoice = 2;
+        colorChoice = 2;
     }
 	//if the "q" key is pressed, quit the program
 	if(key == 'q' || key == 'Q')
@@ -655,6 +679,50 @@ void kbd(unsigned char key, int x, int y)
     }
 }
 
+void setTextureAndColor(){
+    
+    texture[2][0][0] = 0;
+    texture[2][0][1] = 0;
+    texture[2][1][0] = 0;
+    texture[2][1][1] = 1;
+    texture[2][2][0] = 0;
+    texture[2][2][1] = 1;
+    texture[2][3][0] = 0;
+    texture[2][3][1] = 1;
+    
+    texture[1][0][0] = 0;
+    texture[1][0][1] = 0;
+    texture[1][1][0] = 0;
+    texture[1][1][1] = 1;
+    texture[1][2][0] = 1;
+    texture[1][2][1] = 1;
+    texture[1][3][0] = 0;
+    texture[1][3][1] = 1;
+    
+    texture[0][0][0] = 0;
+    texture[0][0][1] = 0;
+    texture[0][1][0] = 0;
+    texture[0][1][1] = 1;
+    texture[0][2][0] = 0.5;
+    texture[0][2][1] = 0.5;
+    texture[0][3][0] = 1;
+    texture[0][3][1] = 0;
+    
+    
+    color[2][0] = 0.5;
+    color[2][1] = 0;
+    color[2][2] = 0.3;
+    
+    color[1][0] = 1;
+    color[1][1] = 1;
+    color[1][2] = 1;
+    
+    color[0][0] = 0;
+    color[0][1] = 0.2;
+    color[0][2] = 0.5;
+    
+}
+
 void init(void)
 {
 	//glClearColor(0, 0, 0, 0);
@@ -682,20 +750,21 @@ void init(void)
     
     glShadeModel(GL_FLAT);
     glEnable(GL_DEPTH_TEST);
-    
     makeCheckImages();
+    setTextureAndColor();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
     glGenTextures(2, texName);
     glBindTexture(GL_TEXTURE_2D, texName[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                     GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64,
                  64, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                 checkImage);
+                 texImage);
     glEnable(GL_TEXTURE_2D);
     
     
@@ -705,17 +774,13 @@ void mouse(int btn, int state, int x, int y)
    
 	if(btn == GLUT_LEFT_BUTTON)
 	{
-
+        deleteObject = false;
         rayCast(x, y);
 	}
 	if(btn == GLUT_RIGHT_BUTTON)
 	{
-        for (int count = 0; count < numOfObjects;count++){
-            if (objectsList[count].hit == true){
-                objectsList[count].deleteObject();
-            }
-        }
-        
+        deleteObject = true;
+        rayCast(x, y);
 	}
     
 	glFlush();
