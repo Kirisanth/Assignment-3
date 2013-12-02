@@ -46,6 +46,8 @@ float rotateX = 0, rotateY = 0, rotateZ = 0;
 std::string * loadedStringObjects = new std::string [20];
 int globalsize = 20;
 float scale;
+static GLubyte checkImage[64][64][4];
+static GLuint texName[2];
 
 //lighting
 
@@ -224,18 +226,36 @@ void drawAxis()
 	glEnd();
 }
 
+void makeCheckImages(void)
+{
+    int i, j, c;
+    
+    for (i = 0; i < 64; i++) {
+        for (j = 0; j < 64; j++) {
+            c = ((((i&0x8)==0)^(((j&0x8))==0)))*255;
+            checkImage[i][j][0] = (GLubyte) c;
+            checkImage[i][j][1] = (GLubyte) c;
+            checkImage[i][j][2] = (GLubyte) c;
+            checkImage[i][j][3] = (GLubyte) 255;
+        }
+    }
+}
+
 void drawPlatform(){
     //bottom
     
+    glBindTexture(GL_TEXTURE_2D, texName[0]);
     glBegin(GL_QUADS);
     glColor3f(0.5, 0, 0.3);
-    glVertex3f(-2.8,-0.3,2.8);
-    glVertex3f(2.8,-0.3,2.8);
-    glVertex3f(2.8,-0.3,-2.8);
-    glVertex3f(-2.8,-0.3,-2.8);
+    glTexCoord2f(0.0, 0.0); glVertex3f(-2.8,-0.3,2.8);
+    glTexCoord2f(0.0, 1.0); glVertex3f(2.8,-0.3,2.8);
+    glTexCoord2f(1.0, 1.0); glVertex3f(2.8,-0.3,-2.8);
+    glTexCoord2f(1.0, 0.0); glVertex3f(-2.8,-0.3,-2.8);
     
     glEnd();
 }
+
+
 
 /* display() - the OpenGL display function, this draws the screen
  *  it displays a spinning cube
@@ -502,11 +522,11 @@ void kbd(unsigned char key, int x, int y)
 
 void init(void)
 {
-	glClearColor(0, 0, 0, 0);
+	//glClearColor(0, 0, 0, 0);
 
     
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT1);
+	//glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHT1);
     
     float position[4] = {10.5,10.5,0,10.5};
     
@@ -524,6 +544,25 @@ void init(void)
     glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
     //glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
     //glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
+    
+    glShadeModel(GL_FLAT);
+    glEnable(GL_DEPTH_TEST);
+    
+    makeCheckImages();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
+    glGenTextures(2, texName);
+    glBindTexture(GL_TEXTURE_2D, texName[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                    GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64,
+                 64, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 checkImage);
+    glEnable(GL_TEXTURE_2D);
+    
     
 }
 void mouse(int btn, int state, int x, int y)
