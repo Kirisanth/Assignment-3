@@ -242,7 +242,7 @@ void drawPlatform(){
  */
 void display()
 {
-//    float origin[] = {0,0,0,1};
+    //       //    float origin[] = {0,0,0,1};
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -262,30 +262,11 @@ void display()
         objectsList[x].drawObjects();
         glPopMatrix();
     }
-    
+    //drawAxis();
     drawPlatform();
     
-	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
-	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
-	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
-	float shiny = 27;
-	float amb[4] = {1.0, 1, 1, 1};
-	float diff[4] = {1,0,0, 1};
-	float spec[4] = {0,0,1, 1};
-    
-    
-	glLightfv(GL_LIGHT1, GL_POSITION, position);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
-    
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_spec);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
-    
 	//swap buffers - rendering is done to the back buffer, bring it forward to display
-    glLoadIdentity();
+    //glLoadIdentity();
     glPopMatrix();
 	glutSwapBuffers();
     
@@ -527,30 +508,22 @@ void init(void)
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT1);
     
-    //	float position[4] = {1.5,0,0, 0};
-    //    float position[4] = {10.5,10.5,0,10.5};
+    float position[4] = {10.5,10.5,0,10.5};
     
-    //	float amb[4] = {1.0, 1, 1, 1};
-    //	float diff[4] = {1,0,0, 1};
-    //	float spec[4] = {0,0,1, 1};
-    
-    
-    //	glLightfv(GL_LIGHT1, GL_POSITION, position);
-    //	glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
-    //	glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
-    //	glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
-    
-    //    glLightfv(GL_LIGHT2, GL_POSITION, position);
-    //	glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
-    //	glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
-    //	glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
+    float amb[4] = {1.0, 1, 1, 1};
+    float diff[4] = {1,0,0, 1};
+    float spec[4] = {0,0,1, 1};
     
     
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//glOrtho(-2, 2, -2, 2, -2, 2);
-	//glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-	//gluPerspective(45, 1, 1, 100);
+    glLightfv(GL_LIGHT1, GL_POSITION, position);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
+    //glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
+    //glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
+    
+    glLightfv(GL_LIGHT2, GL_POSITION, position);
+    glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
+    //glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
+    //glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
     
 }
 void mouse(int btn, int state, int x, int y)
@@ -618,6 +591,7 @@ int main(int argc, char** argv)
     glutSpecialFunc(processSpecialKeys);
 	glutDisplayFunc(display);
     glutIdleFunc(idle);
+    init();
     
 	//start the program!
 	glutMainLoop();
