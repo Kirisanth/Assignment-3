@@ -17,7 +17,7 @@
 #include <sstream>
 
 #include <math.h>
-int ang = 0;	//angle for rotating cube
+double ang = 0;	//angle for rotating cube
 double camera[3] = {9,9,9};
 float objectPos[3];
 float inter[3];
@@ -27,10 +27,10 @@ float mouseX, mouseY, mouseZ;
 float angY = 0;//roation around Y
 float angZ = 0;//rotation around X
 //Global Variables
-float posx = -3;
-float posy = -3;
-float posz = 3;
-float posw = 3.5;
+float posx = -10;
+float posy = -10;
+float posz = 10;
+float posw = 10.5;
 float posmovx = 0, posmovy = 0, posmovz = 0;
 float position[4] = {posx, posy , posz, posw};
 GLdouble newPoint [3];
@@ -373,49 +373,37 @@ void display()
     glVertex3f(objectPos[0],objectPos[1],objectPos[2]);//draw point
     glEnd();
     
-    
-        //  float position[4] = {1.5,0,0, 0};
-        //    float position[4] = {10.5,10.5,0,10.5};
+
     glPushMatrix();
     glRotatef(ang, 0, 1, 0);
+    glScaled(posmovx, posmovy, posmovz);
     
-      float amb[4] = {1.0, 1, 1, 1};
-      float diff[4] = {1,0,0, 1};
-      float spec[4] = {0,0,1, 1};
-    
-    
-      glLightfv(GL_LIGHT1, GL_POSITION, position);
-      glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
-      glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
-      glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
-    
-        //    glLightfv(GL_LIGHT2, GL_POSITION, position);
-        //  glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
-        //  glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
-    //  glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
-    
-        //TODO: Whats all this for
-    //  glMatrixMode(GL_PROJECTION);
-    //  glLoadIdentity();
-      //glOrtho(-2, 2, -2, 2, -2, 2);
-      //glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-    //  gluPerspective(45, 1, 1, 100);
-    
-        glPopMatrix();
-    
-        //TODO:Change to global variables
-        float origin[] = {0,0,0,1};
-        float m_amb[] = {0.33, 0.22, 0.03, 1.0};
-        float m_dif[] = {0.78, 0.57, 0.11, 1.0};
-        float m_spec[] = {0.99, 0.91, 0.81, 1.0};
-        float shiny = 50;
+    float amb[4] = {1.0, 1, 1, 1};
+    float diff[4] = {1,0,0, 1};
+    float spec[4] = {0,0,1, 1};
 
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_spec);
+    glLightfv(GL_LIGHT1, GL_POSITION, position);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, spec);
+
+    glLightfv(GL_LIGHT2, GL_POSITION, position);
+    glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
+    glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
+    glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
+
+    glPopMatrix();
     
-    
-    
+    //TODO:Change to global variables
+//    float origin[] = {0,0,0,1};
+    float m_amb[] = {0.33, 0.22, 0.03, 1.0};
+    float m_dif[] = {0.78, 0.57, 0.11, 1.0};
+    float m_spec[] = {0.99, 0.91, 0.81, 1.0};
+//    float shiny = 50;
+
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, m_amb);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_spec);
     
     glPushMatrix();
     
@@ -440,7 +428,7 @@ void display()
 
 void idle()
 {
-    ang++;
+    ang = ang + 0.1;
     glutPostRedisplay();
 }
 
@@ -505,18 +493,12 @@ void kbd(unsigned char key, int x, int y)
 	}
     //lighting
     if (key == 'r') {
-        //        posx++;
-        //        posy++;
         posmovx++;
         posmovy++;
         posmovz++;
-        //        posz++;
         printf("%4.2f \n", posmovx);
     }
     if (key == 'e') {
-        //        posx--;
-        //        posy--;
-        //        posz--;
         posmovx--;
         posmovy--;
         posmovz--;
