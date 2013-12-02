@@ -40,8 +40,8 @@ bool hit = false;//checks if hit or not
 objects objectsList[20];//stores each object
 int numOfObjects = 0;//tracks number of objects
 float translateX = 0, translateY = 0, translateZ = 0;//tracks rotation
-int targetObject = false;//marks hit object
-float rotateX = 0, rotateY = 0, rotateZ = 0;//rotates objects
+int targetObject = false;
+float rotateX = 0, rotateY = 0, rotateZ = 0;
 std::string * loadedStringObjects = new std::string [20];
 int globalsize = 20;
 float scale;
