@@ -390,6 +390,22 @@ void display()
     glLightfv(GL_LIGHT2, GL_DIFFUSE, diff);
     glLightfv(GL_LIGHT2, GL_AMBIENT, amb);
     glLightfv(GL_LIGHT2, GL_SPECULAR, spec);
+    
+    
+    float amb2[4] = {1.0, 1, 1, 1};
+    float diff2[4] = {1,0, 0, 1};
+    float spec2[4] = {0,0, 1, 1};
+    
+    glLightfv(GL_LIGHT1, GL_POSITION, position2);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, diff2);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, amb2);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, spec2);
+    
+    glLightfv(GL_LIGHT2, GL_POSITION, position2);
+    glLightfv(GL_LIGHT2, GL_DIFFUSE, diff2);
+    glLightfv(GL_LIGHT2, GL_AMBIENT, amb2);
+    glLightfv(GL_LIGHT2, GL_SPECULAR, spec2);
+
 
     glPopMatrix();
     
