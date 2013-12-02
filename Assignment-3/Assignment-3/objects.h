@@ -36,7 +36,7 @@ class objects{
            double d[3],
            double n[3],
            double objPlNorm[6][3],
-           double objPtsFNorm[6][3][2],
+           double objPtsFNorm[6][3][3],
            double objVecFNorm[6][2][3],
            double sphPts[3],
            double rotateAng,

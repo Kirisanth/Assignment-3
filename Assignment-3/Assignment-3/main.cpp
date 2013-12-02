@@ -66,21 +66,106 @@ void loadFile2(objects objects[20], int size)
     std::string line;
     std::ifstream myfile ("example.txt");
 
-    int i = size - 1;
+    int counter = size - 1;
     if (myfile.is_open())
     {
         while ( getline (myfile,line) )
         {
 
-            i--;
+//            counter--;
 
             std::string word;
             std::stringstream stream(line);
+            int p = 0;
+            
+            
+            
+            std::string stringobj[132];
             while( getline(stream, word, ',') )
             {
-                std::cout << word << "\n";
+//                std::cout << word << "\n";
+                stringobj[p] = word;
+                
+                
+                p++;
             }
-            std::cout << "------------\n";
+//            std::cout << "------------\n";
+            
+            p = 0;
+            
+            for (int i = 0; i < 3; i++) {
+                objectsList[counter].org[i] = strtod(stringobj[p].c_str(), NULL);
+                p++;
+            }
+            
+            for (int i = 0; i < 3; i++) {
+                objectsList[counter].dir[i] = strtod(stringobj[p].c_str(), NULL);
+                p++;
+            }
+
+            for (int i = 0; i < 3; i++) {
+                objectsList[counter].norm[i] = strtod(stringobj[p].c_str(), NULL);
+                p++;
+            }
+            
+            
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 3; j++) {
+                    objectsList[counter].objectPlaneNormal[i][j] = strtod(stringobj[p].c_str(), NULL);
+                    p++;
+                }
+            }
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 3; j++) {
+                    for (int k = 0; k < 3; k++) {
+                        objectsList[counter].objectPointsForNormal[i][j][k] = strtod(stringobj[p].c_str(), NULL);
+                        p++;
+                    }
+                }
+            }
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 2; j++) {
+                    for (int k = 0; k < 3; k++) {
+                        objectsList[counter].objectVectorForNormal[i][j][k] = strtod(stringobj[p].c_str(), NULL);
+                        p++;
+                    }
+                }
+            }
+            
+            for (int i = 0; i < 3; i++) {
+                objectsList[counter].spherePoints[i] = strtod(stringobj[p].c_str(), NULL);
+                p++;
+            }
+            
+            
+            objectsList[counter].rotationAngle = strtod(stringobj[p].c_str(), NULL);
+            p++;
+            objectsList[counter].translateX = strtod(stringobj[p].c_str(), NULL);
+            p++;
+            objectsList[counter].translateY = strtod(stringobj[p].c_str(), NULL);
+            p++;
+            objectsList[counter].translateZ = strtod(stringobj[p].c_str(), NULL);
+            p++;
+            objectsList[counter].rotateX = strtod(stringobj[p].c_str(), NULL);
+            p++;
+            objectsList[counter].rotateY = strtod(stringobj[p].c_str(), NULL);
+            p++;
+            objectsList[counter].rotateZ = strtod(stringobj[p].c_str(), NULL);
+            p++;
+            objectsList[counter].hit = true;
+            p++;
+            objectsList[counter].objectType = 1;
+            objectsList[counter].drawingMaterial = 1;
+            p++;
+            p++;
+            objectsList[counter].scaleFactor = strtod(stringobj[p].c_str(), NULL);
+
+            
+            
+//            objectsList[i].s = objects();
+            
+            counter--;
+            
 
         }
         myfile.close();
@@ -494,9 +579,11 @@ void kbd(unsigned char key, int x, int y)
 //        test.readFile(&loadedStringObjects, globalsize);
 //        test.loadFile(&loadedStringObjects, globalsize);
         loadFile2(&objectsList[20], 20);
+        std::cout << "red";
         
 //        std::cout << loadedStringObjects[1];
 //        std::cout << loadedStringObjects[2];
+        glutPostRedisplay();
     }
 }
 
