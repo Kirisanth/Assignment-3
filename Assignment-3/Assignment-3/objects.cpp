@@ -12,7 +12,7 @@
 #include "objects.h"
 #include <math.h>
 
-
+//intilize objects 
 objects::objects(){
     org[0] = 0;
     org[1] = 0;
@@ -213,37 +213,31 @@ void objects::normalizePlane(){
     objectPlaneNormal[0][1] = objectVectorForNormal[0][0][2]*objectVectorForNormal[0][1][0] - objectVectorForNormal[0][0][0]*objectVectorForNormal[0][1][2];
     objectPlaneNormal[0][2] = objectVectorForNormal[0][0][0]*objectVectorForNormal[0][1][1] - objectVectorForNormal[0][0][1]*objectVectorForNormal[0][1][0] * -1;
     
-    printf("\nright side normal = (%f,%f,%f)\n",objectPlaneNormal[0][0],objectPlaneNormal[0][1],objectPlaneNormal[0][2]);
     
     objectPlaneNormal[1][0] = objectVectorForNormal[1][0][1]*objectVectorForNormal[1][1][2] - objectVectorForNormal[1][0][2]*objectVectorForNormal[1][1][1];
     objectPlaneNormal[1][1] = objectVectorForNormal[1][0][2]*objectVectorForNormal[1][1][0] - objectVectorForNormal[1][0][0]*objectVectorForNormal[1][1][2];
     objectPlaneNormal[1][2] = objectVectorForNormal[1][0][0]*objectVectorForNormal[1][1][1] - objectVectorForNormal[1][0][1]*objectVectorForNormal[1][1][0];
     
-    printf("\nleft side normal = (%f,%f,%f)\n",objectPlaneNormal[1][0],objectPlaneNormal[1][1],objectPlaneNormal[1][2]);
     
     objectPlaneNormal[2][0] = objectVectorForNormal[2][0][1]*objectVectorForNormal[2][1][2] - objectVectorForNormal[2][0][2]*objectVectorForNormal[2][1][1];
     objectPlaneNormal[2][1] = objectVectorForNormal[2][0][2]*objectVectorForNormal[2][1][0] - objectVectorForNormal[2][0][0]*objectVectorForNormal[2][1][2];
     objectPlaneNormal[2][2] = objectVectorForNormal[2][0][0]*objectVectorForNormal[2][1][1] - objectVectorForNormal[2][0][1]*objectVectorForNormal[2][1][0];
     
-    printf("\ntop side normal = (%f,%f,%f)\n",objectPlaneNormal[2][0],objectPlaneNormal[2][1],objectPlaneNormal[2][2]);
     
     objectPlaneNormal[3][0] = objectVectorForNormal[3][0][1]*objectVectorForNormal[3][1][2] - objectVectorForNormal[3][0][2]*objectVectorForNormal[3][1][1];
     objectPlaneNormal[3][1] = objectVectorForNormal[3][0][2]*objectVectorForNormal[3][1][0] - objectVectorForNormal[3][0][0]*objectVectorForNormal[3][1][2] *-1;
     objectPlaneNormal[3][2] = objectVectorForNormal[3][0][0]*objectVectorForNormal[3][1][1] - objectVectorForNormal[3][0][1]*objectVectorForNormal[3][1][0];
     
-    printf("\nbottom normal = (%f,%f,%f)\n",objectPlaneNormal[3][0],objectPlaneNormal[3][1],objectPlaneNormal[3][2]);
     
     objectPlaneNormal[4][0] = objectVectorForNormal[4][0][1]*objectVectorForNormal[4][1][2] - objectVectorForNormal[4][0][2]*objectVectorForNormal[4][1][1];
     objectPlaneNormal[4][1] = objectVectorForNormal[4][0][2]*objectVectorForNormal[4][1][0] - objectVectorForNormal[4][0][0]*objectVectorForNormal[4][1][2];
     objectPlaneNormal[4][2] = objectVectorForNormal[4][0][0]*objectVectorForNormal[4][1][1] - objectVectorForNormal[4][0][1]*objectVectorForNormal[4][1][0];
     
-    printf("\nback right side normal = (%f,%f,%f)\n",objectPlaneNormal[4][0],objectPlaneNormal[4][1],objectPlaneNormal[4][2]);
     
     objectPlaneNormal[5][0] = objectVectorForNormal[5][0][1]*objectVectorForNormal[5][1][2] - objectVectorForNormal[5][0][2]*objectVectorForNormal[5][1][1];
     objectPlaneNormal[5][1] = objectVectorForNormal[5][0][2]*objectVectorForNormal[5][1][0] - objectVectorForNormal[5][0][0]*objectVectorForNormal[5][1][2];
     objectPlaneNormal[5][2] = objectVectorForNormal[5][0][0]*objectVectorForNormal[5][1][1] - objectVectorForNormal[5][0][1]*objectVectorForNormal[5][1][0];
     
-    printf("\nback left side normal = (%f,%f,%f)\n",objectPlaneNormal[5][0],objectPlaneNormal[5][1],objectPlaneNormal[5][2]);
 }
 
 

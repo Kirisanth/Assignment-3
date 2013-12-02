@@ -32,27 +32,28 @@ float posy = -10;
 float posz = 10;
 float posw = 10.5;
 float posmovx = 0, posmovy = 0, posmovz = 0;
-float position[4] = {posx, posy , posz, posw};
-GLdouble newPoint [3];//decalres new point
+float position[4] = {posx, posy , posz, posw};//lighting postion
+float position2[4] = {5, 7 , 1, 2};//lighting postion
+GLdouble newPoint [3];//creates new point
 GLdouble pNear[3];//depth for z
 GLdouble pFar[3]; //depth for z
-bool hit = false;//checks if hit or not
-objects objectsList[20];//stores each object
-int numOfObjects = 0;//tracks number of objects
-float translateX = 0, translateY = 0, translateZ = 0;//tracks rotation
-int targetObject = false;
-float rotateX = 0, rotateY = 0, rotateZ = 0;
-std::string * loadedStringObjects = new std::string [20];
+bool hit = false;//checks hit on object
+int x, y, z;
+objects objectsList[20];//contains list of objects
+int numOfObjects = 0;//contains number of objects
+float translateX = 0, translateY = 0, translateZ = 0;//rotation around axis
+int targetObject = false;//see's if target object is hit
+float rotateX = 0, rotateY = 0, rotateZ = 0;//rotating objects
+std::string * loadedStringObjects = new std::string [20];//loading string
 int globalsize = 20;
-float scale;
+float scale;//scaling for objects
 static GLubyte texImage[64][64][4];
 static GLuint texName[2];
-
-double texture[3][4][2];
-bool deleteObject = false;
-double color[3][3];
-int textureChoice = 0;
-int colorChoice = 0;
+double texture[3][4][2];//texture for objects
+bool deleteObject = false;//check to see if object should be deleted
+double color[3][3];//color of plane
+int textureChoice = 0;//choice of texture of plane
+int colorChoice = 0;//choice of color of plane
 
 //lighting
 
@@ -185,6 +186,9 @@ void loadFile2(objects objects[20], int size)
     std::cout << "good";
 }
 
+/*
+ Function takes in mouse coordiatnes and returns a 3d point
+*/
 void Get3DPos(int x, int y, float winz, GLdouble point[3])
 {
 	GLint viewport[4];
@@ -202,14 +206,13 @@ void Get3DPos(int x, int y, float winz, GLdouble point[3])
 }
 
 
-//float distance(ray newRay){
-//    return -1 * (0*newRay.norm[0] + 0*newRay.norm[1] + 0*newRay.norm[2]);
-//}
 
+//Function performs a ray plan test to check if ray intersected object other then sphere
 bool rayPlaneTest(int count, int i){
     float t = objectsList[count].normalMultiplyDirection(i);
     if (t != 0){
         t = objectsList[count].normalMultiplyOrgin(i, t);
+        //store instesection points if it did 
         inter[0] = objectsList[count].org[0] + t*objectsList[count].norm[0];
         inter[1] = objectsList[count].org[1] + t*objectsList[count].norm[1];
         inter[2] = objectsList[count].org[2] + t*objectsList[count].norm[2];
@@ -221,6 +224,7 @@ bool rayPlaneTest(int count, int i){
     
 }
 
+//Function performs a ray plan test to check if ray intersected sphere
 void spehereRayTest(int count, int i){
     double a, b, c;
     float temp[3], temp2[3];
@@ -249,13 +253,15 @@ void spehereRayTest(int count, int i){
  */
 void rayCast(float x, float y)
 {
-    
-    for (int count = 0; count < numOfObjects; count++){ 
+    //count through number of objects to perform tests on each one
+    for (int count = 0; count < numOfObjects; count++){
+    //count through number of planes of each object to perform test on each one
     for (int i = 0; i < 6; i++){
         
 	Get3DPos(x, y, 0.0, pNear);
 	Get3DPos(x, y, 1.0, pFar);
         
+    //store ray orgin
 	objectsList[count].org[0] = camera[0];
 	objectsList[count].org[1] = camera[1];
 	objectsList[count].org[2] = camera[2];
@@ -264,24 +270,31 @@ void rayCast(float x, float y)
 	objectsList[count].dir[0] = pFar[0] - pNear[0];
 	objectsList[count].dir[1] = pFar[1] - pNear[1];
 	objectsList[count].dir[2] = pFar[2] - pNear[2];
+    
+    //normalize direction vector
     objectsList[count].normalizeDirection();
+    
+    //undergoe ray plane test
     groundPlane = rayPlaneTest(count, i);
+        
 	//update the position of the object to the intersection point
     if ( groundPlane == true){
         objectPos[0] = inter[0];
         objectPos[1] = inter[1];
         objectPos[2] = inter[2];
         
+        //check if object is hit between min and max bounds
         if ((objectsList[count].min + objectsList[count].translateX < objectPos[0] && objectPos[0] < objectsList[count].max + objectsList[count].translateX && objectsList[count].min + objectsList[count].translateZ < objectPos[2] && objectPos[2] < objectsList[count].max + objectsList[count].translateZ && objectPos[1] < objectsList[count].max + objectsList[count].translateY && objectsList[count].min + objectsList[count].translateY < objectPos[1])){
             hit = true;
             targetObject = count;
             objectsList[count].hit = true;
+            //check to see right click to delete object
             if (deleteObject == true){
                 objectsList[count].deleteObject();
             }
             break;
         }
-
+        //return false hit else wise
         else{
             hit = false;
             objectsList[count].hit = false;
@@ -289,7 +302,7 @@ void rayCast(float x, float y)
         
     
     }
-    }
+    }   //break out of cycle of object 
         if(hit == true){
             for(int z = 0; z < numOfObjects; z++){
                 if(z != count){
@@ -322,6 +335,11 @@ void drawAxis()
 	glEnd();
 }
 
+
+//create texture pattern
+//algorithm is not mine. cited from:
+//www.gamedev.net/topic/500676-opengl-some-info-about-textures/
+//game dev website
 void makeCheckImages(void)
 {
     int i, j, c;
@@ -337,6 +355,7 @@ void makeCheckImages(void)
     }
 }
 
+//draw platform with textuized features 
 void drawPlatform(){
     //bottom
     glBindTexture(GL_TEXTURE_2D, texName[0]);
@@ -453,7 +472,7 @@ void idle()
  */
 void kbd(unsigned char key, int x, int y)
 {
-    
+    //change object to cube
     if(key == '1'){
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
@@ -461,6 +480,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //change object to sphere 
     if(key == '2'){
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
@@ -468,6 +489,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //change object to teapot
     if(key == '3'){
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
@@ -475,6 +498,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //change object to cone
     if(key == '4'){
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
@@ -482,6 +507,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //change object to ring
     if(key == '5'){
         for (int count = 0; count < numOfObjects;count++){
             if (objectsList[count].hit == true){
@@ -489,36 +516,47 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //change texture to mosaic
     if(key == '7'){
         textureChoice = 0;
         colorChoice = 0;
     }
+    
+    //change texture to checkered 
     if(key == '8'){
         textureChoice = 1;
         colorChoice = 1;
     }
+    
+    //change texture to stripes
     if(key == '9'){
         textureChoice = 2;
         colorChoice = 2;
     }
+    
 	//if the "q" key is pressed, quit the program
 	if(key == 'q' || key == 'Q')
 	{
 		exit(0);
 	}
     //lighting
+    //increase light source
     if (key == 'r') {
         posmovx++;
         posmovy++;
         posmovz++;
         printf("%4.2f \n", posmovx);
     }
+    
+    //decrease light source 
     if (key == 'e') {
         posmovx--;
         posmovy--;
         posmovz--;
         printf("%4.2f \n", posmovx);
     }
+    
     if (key == 'b')
     {
         idle();
@@ -530,8 +568,9 @@ void kbd(unsigned char key, int x, int y)
         newObject.setObjectPoints(0,0,0);
         objectsList[numOfObjects] = newObject;
         numOfObjects++;
-        printf("NumbOfObjects %i", numOfObjects);
     }
+    
+    //translate object on x axis 
     if (key == 'x'){
         //int mod = glutGetModifiers();
         translateX = 0.1;
@@ -541,6 +580,7 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    //translate object backwards on x axis 
     if (key == 'X'){
         //int mod = glutGetModifiers();
         translateX = -0.1;
@@ -550,7 +590,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
-
+    
+    //translate object on y
     if (key == 'y'){
         translateY = 0.1;
         for (int count = 0; count < numOfObjects;count++){
@@ -559,6 +600,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //translate object backwards on y 
     if (key == 'Y'){
         translateY = -0.1;
         for (int count = 0; count < numOfObjects;count++){
@@ -567,6 +610,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //translaye object on z
     if (key == 'z'){
         translateZ = 0.1;
         for (int count = 0; count < numOfObjects;count++){
@@ -576,6 +621,7 @@ void kbd(unsigned char key, int x, int y)
         }
     }
     
+    //translate object back on z
     if (key == 'Z'){
         translateZ = -0.1;
         for (int count = 0; count < numOfObjects;count++){
@@ -584,6 +630,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //rotate object around x
     if (key == 'i'){
          rotateX = 1;
         for (int count = 0; count < numOfObjects;count++){
@@ -592,6 +640,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //rotate object backwards around x
     if (key == 'I'){
         rotateX = -1;
         for (int count = 0; count < numOfObjects;count++){
@@ -600,6 +650,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //rotate objects around y
     if (key == 'u'){
         rotateY = 1;
         for (int count = 0; count < numOfObjects;count++){
@@ -608,6 +660,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //rotate objects backwards on y
     if (key == 'U'){
         rotateY = -1;
         for (int count = 0; count < numOfObjects;count++){
@@ -616,6 +670,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //rotate object on z
     if (key == 'o'){
         rotateZ = 1;
         for (int count = 0; count < numOfObjects;count++){
@@ -624,6 +680,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //rotate object backwards on z
     if (key == 'O'){
         rotateZ = -1;
         for (int count = 0; count < numOfObjects;count++){
@@ -633,6 +691,7 @@ void kbd(unsigned char key, int x, int y)
         }
     }
     
+    // increse object size
     if (key == 'm'){
         scale = 0.1;
         for (int count = 0; count < numOfObjects;count++){
@@ -641,6 +700,8 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    //decrease object size
     if (key == 'M'){
         scale = -0.1;
         for (int count = 0; count < numOfObjects;count++){
@@ -674,8 +735,17 @@ void kbd(unsigned char key, int x, int y)
 //        std::cout << loadedStringObjects[2];
         glutPostRedisplay();
     }
+    
+    if (key == 'h'){
+        for (int count = 0; count < numOfObjects;count++){
+                objectsList[count].deleteObject();
+        }
+        
+    }
+    
 }
 
+//set texture and color 
 void setTextureAndColor(){
     
     texture[2][0][0] = 0;
@@ -719,6 +789,7 @@ void setTextureAndColor(){
     color[0][2] = 0.5;
     
 }
+
 
 void init(void)
 {
@@ -766,14 +837,16 @@ void init(void)
     
     
 }
+
 void mouse(int btn, int state, int x, int y)
 {
-   
+   //ray cast is pressed 
 	if(btn == GLUT_LEFT_BUTTON)
 	{
         deleteObject = false;
         rayCast(x, y);
 	}
+    //delete if pressed 
 	if(btn == GLUT_RIGHT_BUTTON)
 	{
         deleteObject = true;
@@ -804,6 +877,11 @@ void processSpecialKeys(int key, int x, int y) {
     
 }
 
+void printCommands(){
+    printf("Welcome to our program!\n\n");
+    printf("Functions \n \n a - add object \n left click - select object \n right click - delete object \n 1 - change object to cube \n 2 - change object to sphere \n 3 - change object to teapot \n 4 - change object to cone \n 5 - change object to ring \n 7 - change plane to texture 1 \n 8 - change plane to texture 2 \n 9 - change plane to texture 3 \n q - quit program \n r/e - adjust lighting source \n x and shift X - translate object on x \n y and shift y - translate on y \n z and shift z - tranlate on z \n i and shift i - rotate object around x \n u and shift u - rotate object around y \n o and shift o - rotate object around z \n m and shift m - scale object size \n s - save object list \n l - load object list (must save first, restart program then press l to view saved objects) \n h - reset object list");
+}
+
 int main(int argc, char** argv)
 {
 	//glut initialization stuff:
@@ -828,6 +906,7 @@ int main(int argc, char** argv)
     glutSpecialFunc(processSpecialKeys);
 	glutDisplayFunc(display);
     glutIdleFunc(idle);
+    printCommands();
     
     
 	//start the program!
