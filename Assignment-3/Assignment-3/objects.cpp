@@ -31,6 +31,68 @@ objects::objects(){
     translateZ = 0;
     
 };
+objects::objects(double o[3],
+                 double d[3],
+                 double n[3],
+                 double objPlNorm[6][3],
+                 double objPtsFNorm[6][3][2],
+                 double objVecFNorm[6][2][3],
+                 double sphPts[3],
+                 double rotateAng,
+                 double transX,
+                 double transY,
+                 double transZ,
+                 double rotX,
+                 double rotY,
+                 double rotZ,
+                 bool h,
+                 int objT,
+                 int dM,
+                 double sF){
+
+    for (int i = 0; i < 3; i++) {
+        spherePoints[i] = sphPts[i];
+        org[i] = o[i];
+        dir[i] = d[i];
+        norm[i] = n[i];
+    }
+
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 3; j++) {
+            objectPlaneNormal[i][j] = objPlNorm[i][j];
+        }
+    }
+    
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; j++) {
+                objectPointsForNormal[i][j][k] = objPtsFNorm[i][j][k];
+            }
+        }
+    }
+    
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 3; j++) {
+                objectVectorForNormal[i][j][k] = objVecFNorm[i][j][k];
+            }
+        }
+    }
+    
+    rotationAngle = rotateAng;
+    translateX = transX;
+    translateY = transY;
+    translateZ = transZ;
+    rotateX = rotX;
+    rotateY = rotY;
+    rotateZ = rotZ;
+    hit = h;
+    objectType = objT;
+    drawingMaterial = dM; //indicate which choice made by user via integer
+    scaleFactor = sF;
+};
+
+//TODO: added another constructor
 
 void objects::normalizeDirection(){
     
@@ -458,4 +520,62 @@ void objects::modifyRotationPoints(float rotX, float rotY, float rotZ, int angle
     objectPointsForNormal[5][2][t2] = temp1*sin(angle) + temp2*cos(angle);
     
     createObjectVectors();
+}
+
+std::string objects::changeDataToString()
+{
+
+    
+    
+
+    std::string stringObject;
+    
+    
+    stringObject = std::to_string(org[0]);
+    stringObject = stringObject + "," + std::to_string(org[1]);
+    stringObject = stringObject + "," + std::to_string(org[2]);
+    stringObject = stringObject + "," + std::to_string(dir[0]);
+    stringObject = stringObject + "," + std::to_string(dir[1]);
+    stringObject = stringObject + "," + std::to_string(dir[2]);
+    stringObject = stringObject + "," + std::to_string(norm[0]);
+    stringObject = stringObject + "," + std::to_string(norm[1]);
+    stringObject = stringObject + "," + std::to_string(norm[2]);
+
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 3; j++) {
+            stringObject = stringObject + "," + std::to_string(objectPlaneNormal[i][j]);
+        }
+    }
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; k++) {
+                stringObject = stringObject + "," + std::to_string(objectPointsForNormal[i][j][k]);
+            }
+        }
+    }
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 3; k++) {
+                stringObject = stringObject + "," + std::to_string(objectVectorForNormal[i][j][k]);
+            }
+        }
+    }
+    stringObject = stringObject + "," + std::to_string(spherePoints[0]);
+    stringObject = stringObject + "," + std::to_string(spherePoints[1]);
+    stringObject = stringObject + "," + std::to_string(spherePoints[2]);
+    stringObject = stringObject + "," + std::to_string(rotationAngle);
+    stringObject = stringObject + "," + std::to_string(translateX);
+    stringObject = stringObject + "," + std::to_string(translateY);
+    stringObject = stringObject + "," + std::to_string(translateZ);
+    stringObject = stringObject + "," + std::to_string(rotateX);
+    stringObject = stringObject + "," + std::to_string(rotateY);
+    stringObject = stringObject + "," + std::to_string(rotateZ);
+    
+    (hit == true) ? stringObject = stringObject + "," + "true" : stringObject = stringObject + "," + "false";
+
+    stringObject = stringObject + "," + std::to_string(objectType);
+    stringObject = stringObject + "," + std::to_string(drawingMaterial);
+    stringObject = stringObject + "," + std::to_string(scaleFactor);
+
+    return stringObject;
 }

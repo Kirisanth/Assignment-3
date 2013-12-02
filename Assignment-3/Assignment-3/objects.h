@@ -10,9 +10,11 @@
 #define __Assignment_3__objects__
 
 #include <iostream>
+#include <string>
 
 class objects{
     public:
+        //fields
         double org[3];
         double dir[3];
         double norm[3];
@@ -27,7 +29,28 @@ class objects{
         int objectType;
         int drawingMaterial; //indicate which choice made by user via integer
         double scaleFactor;
+        //constructor
         objects();
+        //Really messed up constructor
+        objects(double o[3],
+           double d[3],
+           double n[3],
+           double objPlNorm[6][3],
+           double objPtsFNorm[6][3][2],
+           double objVecFNorm[6][2][3],
+           double sphPts[3],
+           double rotateAng,
+           double transX,
+           double transY,
+           double transZ,
+           double rotX,
+           double rotY,
+           double rotZ,
+           bool h,
+           int objT,
+           int dM,
+           double sF);
+        //methods
         void normalizeDirection();
         void normalizePlane();
         float normalMultiplyDirection(int i);
@@ -43,6 +66,7 @@ class objects{
         void objectRotateX(double x);
         void objectRotateY(double y);
         void objectRotateZ(double z);
+        std::string changeDataToString();
 
 };
 

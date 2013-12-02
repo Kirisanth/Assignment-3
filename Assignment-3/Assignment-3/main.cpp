@@ -7,9 +7,15 @@
 //
 
 #include "objects.h"
+#include "FileIO.h"
 #include <stdlib.h>
 #include <GLUT/glut.h>
 #include <iostream>
+
+#include <fstream>
+#include <string>
+#include <sstream>
+
 #include <math.h>
 int ang = 0;	//angle for rotating cube
 double camera[3] = {5,5,5};
@@ -37,6 +43,8 @@ int numOfObjects = 0;
 float translateX = 0, translateY = 0, translateZ = 0;
 int targetObject = false;
 float rotateX = 0, rotateY = 0, rotateZ = 0;
+std::string * loadedStringObjects = new std::string [20];
+int globalsize = 20;
 
 //lighting
 
@@ -50,6 +58,35 @@ float rotateX = 0, rotateY = 0, rotateZ = 0;
 
 void findObjectNormal() {
 
+}
+
+void loadFile2(objects objects[20], int size)
+{
+    std::string line;
+    std::ifstream myfile ("example.txt");
+
+    int i = size - 1;
+    if (myfile.is_open())
+    {
+        while ( getline (myfile,line) )
+        {
+
+            i--;
+
+            std::string word;
+            std::stringstream stream(line);
+            while( getline(stream, word, ',') )
+            {
+                std::cout << word << "\n";
+            }
+            std::cout << "------------\n";
+
+        }
+        myfile.close();
+    }
+    else std::cout << "Unable to open file";
+    
+    std::cout << "good";
 }
 
 void Get3DPos(int x, int y, float winz, GLdouble point[3])
@@ -280,6 +317,7 @@ void kbd(unsigned char key, int x, int y)
 	{
 		exit(0);
 	}
+    //lighting
     if (key == 'r') {
         //        posx++;
         //        posy++;
@@ -302,6 +340,7 @@ void kbd(unsigned char key, int x, int y)
     {
         idle();
     }
+    //create new object
     if (key == 'a'){
         objects newObject;
         newObject.objectType = 1;
@@ -409,6 +448,27 @@ void kbd(unsigned char key, int x, int y)
                 objectsList[count].objectRotateZ(rotateZ);
             }
         }
+    }
+    //Change this to command save or something
+    if(key == 's')
+    {
+        //Loop through array and save content into a file
+        FileIO test;
+//        test.writeFile(bobby, 5);
+        
+        //test on object
+        test.saveFile(objectsList, globalsize);
+    }
+    if(key == 'l')
+    {
+        //Reads File and stores in global array
+//        FileIO test;
+//        test.readFile(&loadedStringObjects, globalsize);
+//        test.loadFile(&loadedStringObjects, globalsize);
+        loadFile2(&objectsList[20], 20);
+        
+//        std::cout << loadedStringObjects[1];
+//        std::cout << loadedStringObjects[2];
     }
 }
 

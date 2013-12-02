@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C43787E184BEEAA0083081F /* FileIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C43787C184BEEAA0083081F /* FileIO.cpp */; };
 		3C5E5F10184167CB00424C89 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C5E5F0F184167CB00424C89 /* main.cpp */; };
 		3C5E5F12184167CB00424C89 /* Assignment_3.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C5E5F11184167CB00424C89 /* Assignment_3.1 */; };
 		6C3840CB18497F32000BAE54 /* objects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3840C918497F32000BAE54 /* objects.cpp */; };
@@ -28,6 +29,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3C43787C184BEEAA0083081F /* FileIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileIO.cpp; sourceTree = "<group>"; };
+		3C43787D184BEEAA0083081F /* FileIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileIO.h; sourceTree = "<group>"; };
 		3C5E5F0C184167CB00424C89 /* Assignment-3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Assignment-3"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C5E5F0F184167CB00424C89 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3C5E5F11184167CB00424C89 /* Assignment_3.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Assignment_3.1; sourceTree = "<group>"; };
@@ -74,6 +77,8 @@
 				3C5E5F11184167CB00424C89 /* Assignment_3.1 */,
 				3C5E5F0F184167CB00424C89 /* main.cpp */,
 				6C3840CA18497F32000BAE54 /* objects.h */,
+				3C43787C184BEEAA0083081F /* FileIO.cpp */,
+				3C43787D184BEEAA0083081F /* FileIO.h */,
 				6C3840C918497F32000BAE54 /* objects.cpp */,
 			);
 			path = "Assignment-3";
@@ -132,6 +137,7 @@
 			files = (
 				3C5E5F10184167CB00424C89 /* main.cpp in Sources */,
 				6C3840CB18497F32000BAE54 /* objects.cpp in Sources */,
+				3C43787E184BEEAA0083081F /* FileIO.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
