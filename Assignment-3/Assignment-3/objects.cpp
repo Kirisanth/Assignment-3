@@ -104,43 +104,67 @@ void objects::normalizeDirection(){
     
 }
 
+void objects::deleteObject(){
+    org[0] = 0;
+    org[1] = 0;
+    org[2] = 0;
+    
+    dir[0] = 0;
+    dir[1] = 0;
+    dir[2] = 0;
+    
+    norm[0] = 0;
+    norm[1] = 0;
+    norm[2] = 0;
+    
+    translateX = 0;
+    translateY = 0;
+    translateZ = 0;
+    
+    objectType = 0;
+    min = 0;
+    max = 0;
+    hit = false;
+}
+
 void objects::drawObjects(){
-        glColor3f(0, 0.5, 0.5);
-        glTranslatef(translateX, translateY, translateZ);
-        glRotatef(rotateX, 1, 0, 0);
-        glRotatef(rotateY, 0, 1, 0);
-        glRotatef(rotateZ, 0, 0, 1);
-        if (objectType == 1){
-            glutSolidCube(0.5);//draw cube
-        }
-        else if (objectType == 2){
-            glutSolidSphere(0.3, 15, 15);//draw cube
-            spherePoints[0] = 0;
-            spherePoints[1] = 0;
-            spherePoints[2] = 0;
-            
-        }
-        else if (objectType == 3){
-            glutSolidTeapot(0.3);//draw cube
-        }
-        else if (objectType == 4){
-            glutSolidCone(0.2, 0.2, 15, 15);//draw cube
-        }
-        else if (objectType == 5){
-            glutSolidTetrahedron();
-        }
-        else {
-            glEnable( GL_POINT_SMOOTH );
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-			glBegin(GL_POINTS);
-			glVertex3f(0,0,0);//draw point
-			glEnd();
-        }
+    glColor3f(0, 0.5, 0.5);
+    //glEnable(GL_COLOR_MATERIAL);
+    //glColorMaterial(GL_FRONT, GL_DIFFUSE);
+    //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, red);
+    glTranslatef(translateX, translateY, translateZ);
+    glRotatef(rotateX, 1, 0, 0);
+    glRotatef(rotateY, 0, 1, 0);
+    glRotatef(rotateZ, 0, 0, 1);
+    if (objectType == 1){
+        glutSolidCube(0.5 + scale);//draw cube
+    }
+    else if (objectType == 2){
+        glutSolidSphere(0.3 + scale, 15, 15);//draw cube
+        spherePoints[0] = 0;
+        spherePoints[1] = 0;
+        spherePoints[2] = 0;
+        
+    }
+    else if (objectType == 3){
+        glutSolidTeapot(0.3 + scale);//draw cube
+    }
+    else if (objectType == 4){
+        glutSolidCone(0.2 + scale, 0.2 + scale, 15, 15);//draw cube
+    }
+    else if (objectType == 5){
+        glutSolidTorus(0.1 + scale, 0.2 + scale, 10, 10);
+    }
     if (hit == true){
         glColor3f(1, 1, 1);
-        glutWireCube(0.7);
+        glutWireCube(0.7 + scale);
     }
+}
+
+void objects::objectScale(float s){
+    scale = scale + s;
+    min = min + scale/2;
+    max = max + scale/2;
 }
 void objects::objectTranslateX(double x){
     translateX = translateX + x;
@@ -226,84 +250,85 @@ void objects::normalizePlane(){
 void objects::setObjectPoints(float x, float y, float z){
     
     //for right face
-    objectPointsForNormal[0][0][0] = 0.25 + x;
-    objectPointsForNormal[0][0][1] = -0.25 + y;
-    objectPointsForNormal[0][0][2] = 0.25 + z;
+    objectPointsForNormal[0][0][0] = max + x;
+    objectPointsForNormal[0][0][1] = min + y;
+    objectPointsForNormal[0][0][2] = max + z;
     
-    objectPointsForNormal[0][1][0] = 0.25 + x;
-    objectPointsForNormal[0][1][1] = 0.25 + y;
-    objectPointsForNormal[0][1][2] = 0.25 + z;
+    objectPointsForNormal[0][1][0] = max + x;
+    objectPointsForNormal[0][1][1] = max + y;
+    objectPointsForNormal[0][1][2] = max + z;
     
-    objectPointsForNormal[0][2][0] = -0.25 + x;
-    objectPointsForNormal[0][2][1] = -0.25 + y;
-    objectPointsForNormal[0][2][2] = 0.25 + z;
+    objectPointsForNormal[0][2][0] = min + x;
+    objectPointsForNormal[0][2][1] = min + y;
+    objectPointsForNormal[0][2][2] = max + z;
     
     //for left face
-    objectPointsForNormal[1][0][0] = 0.25 + x;
-    objectPointsForNormal[1][0][1] = -0.25 + y;
-    objectPointsForNormal[1][0][2] = 0.25 + z;
+    objectPointsForNormal[1][0][0] = max + x;
+    objectPointsForNormal[1][0][1] = min + y;
+    objectPointsForNormal[1][0][2] = max + z;
     
-    objectPointsForNormal[1][1][0] = 0.25 + x;
-    objectPointsForNormal[1][1][1] = 0.25 + y;
-    objectPointsForNormal[1][1][2] = 0.25 + z;
+    objectPointsForNormal[1][1][0] = max + x;
+    objectPointsForNormal[1][1][1] = max + y;
+    objectPointsForNormal[1][1][2] = max + z;
     
-    objectPointsForNormal[1][2][0] = 0.25 + x;
-    objectPointsForNormal[1][2][1] = -0.25 + y;
-    objectPointsForNormal[1][2][2] = -0.25 + z;
+    objectPointsForNormal[1][2][0] = max + x;
+    objectPointsForNormal[1][2][1] = min + y;
+    objectPointsForNormal[1][2][2] = min + z;
     
     //for top face
-    objectPointsForNormal[2][0][0] = 0.25 + x;
-    objectPointsForNormal[2][0][1] = 0.25 + y;
-    objectPointsForNormal[2][0][2] = 0.25 + z;
+    objectPointsForNormal[2][0][0] = max + x;
+    objectPointsForNormal[2][0][1] = max + y;
+    objectPointsForNormal[2][0][2] = max + z;
     
-    objectPointsForNormal[2][1][0] = -0.25 + x;
-    objectPointsForNormal[2][1][1] = 0.25 + y;
-    objectPointsForNormal[2][1][2] = 0.25 + z;
+    objectPointsForNormal[2][1][0] = min + x;
+    objectPointsForNormal[2][1][1] = max + y;
+    objectPointsForNormal[2][1][2] = max + z;
     
-    objectPointsForNormal[2][2][0] = -0.25 + x;
-    objectPointsForNormal[2][2][1] = 0.25 + y;
-    objectPointsForNormal[2][2][2] = -0.25 + z;
+    objectPointsForNormal[2][2][0] = min + x;
+    objectPointsForNormal[2][2][1] = max + y;
+    objectPointsForNormal[2][2][2] = min + z;
     
     //for bottom face
-    objectPointsForNormal[3][0][0] = 0.25 + x;
-    objectPointsForNormal[3][0][1] = -0.25 + y;
-    objectPointsForNormal[3][0][2] = 0.25 + z;
+    objectPointsForNormal[3][0][0] = max + x;
+    objectPointsForNormal[3][0][1] = min + y;
+    objectPointsForNormal[3][0][2] = max + z;
     
-    objectPointsForNormal[3][1][0] = -0.25 + x;
-    objectPointsForNormal[3][1][1] = -0.25 + y;
-    objectPointsForNormal[3][1][2] = 0.25 + z;
+    objectPointsForNormal[3][1][0] = min + x;
+    objectPointsForNormal[3][1][1] = min + y;
+    objectPointsForNormal[3][1][2] = max + z;
     
-    objectPointsForNormal[3][2][0] = -0.25 + x;
-    objectPointsForNormal[3][2][1] = -0.25 + y;
-    objectPointsForNormal[3][2][2] = -0.25 + z;
-
+    objectPointsForNormal[3][2][0] = min + x;
+    objectPointsForNormal[3][2][1] = min + y;
+    objectPointsForNormal[3][2][2] = min + z;
+    
     //for back right face
-    objectPointsForNormal[4][0][0] = -0.25 + x;
-    objectPointsForNormal[4][0][1] = 0.25 + y;
-    objectPointsForNormal[4][0][2] = -0.25 + z;
-
-    objectPointsForNormal[4][1][0] = -0.25 + x;
-    objectPointsForNormal[4][1][1] = -0.25 + y;
-    objectPointsForNormal[4][1][2] = -0.25 + z;
+    objectPointsForNormal[4][0][0] = min + x;
+    objectPointsForNormal[4][0][1] = max + y;
+    objectPointsForNormal[4][0][2] = min + z;
     
-    objectPointsForNormal[4][2][0] = 0.25 + x;
-    objectPointsForNormal[4][2][1] = -0.25 + y;
-    objectPointsForNormal[4][2][2] = -0.25 + z;
+    objectPointsForNormal[4][1][0] = min + x;
+    objectPointsForNormal[4][1][1] = min + y;
+    objectPointsForNormal[4][1][2] = min + z;
+    
+    objectPointsForNormal[4][2][0] = max + x;
+    objectPointsForNormal[4][2][1] = min + y;
+    objectPointsForNormal[4][2][2] = min + z;
     
     //for back left face
-    objectPointsForNormal[5][0][0] = -0.25 + x;
-    objectPointsForNormal[5][0][1] = 0.25 + y;
-    objectPointsForNormal[5][0][2] = -0.25 + z;
+    objectPointsForNormal[5][0][0] = min + x;
+    objectPointsForNormal[5][0][1] = max + y;
+    objectPointsForNormal[5][0][2] = min + z;
     
-    objectPointsForNormal[5][1][0] = -0.25 + x;
-    objectPointsForNormal[5][1][1] = -0.25 + y;
-    objectPointsForNormal[5][1][2] = -0.25 + z;
+    objectPointsForNormal[5][1][0] = min + x;
+    objectPointsForNormal[5][1][1] = min + y;
+    objectPointsForNormal[5][1][2] = min + z;
     
-    objectPointsForNormal[5][2][0] = -0.25 + x;
-    objectPointsForNormal[5][2][1] = -0.25 + y;
-    objectPointsForNormal[5][2][2] = 0.25 + z;
+    objectPointsForNormal[5][2][0] = min + x;
+    objectPointsForNormal[5][2][1] = min + y;
+    objectPointsForNormal[5][2][2] = max + z;
     
     createObjectVectors();
+    
     
 }
 

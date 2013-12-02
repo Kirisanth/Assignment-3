@@ -50,6 +50,8 @@ class objects{
            int objT,
            int dM,
            double sF);
+    double min = -0.25, max = 0.25;
+    float scale = 0;
         //methods
         void normalizeDirection();
         void normalizePlane();
@@ -67,6 +69,8 @@ class objects{
         void objectRotateY(double y);
         void objectRotateZ(double z);
         std::string changeDataToString();
+    void objectScale(float s);
+    void deleteObject();
 
 };
 

@@ -18,7 +18,7 @@
 
 #include <math.h>
 int ang = 0;	//angle for rotating cube
-double camera[3] = {5,5,5};
+double camera[3] = {9,9,9};
 float objectPos[3];
 float inter[3];
 bool groundPlane = true;
@@ -45,6 +45,7 @@ int targetObject = false;
 float rotateX = 0, rotateY = 0, rotateZ = 0;
 std::string * loadedStringObjects = new std::string [20];
 int globalsize = 20;
+float scale;
 
 //lighting
 
@@ -126,8 +127,26 @@ bool rayPlaneTest(int count, int i){
 }
 
 void spehereRayTest(int count, int i){
+    double a, b, c;
+    float temp[3], temp2[3];
+    float t1, t2;
+    a = objectsList[count].norm[0] * objectsList[count].norm[1] + objectsList[count].norm[1] * objectsList[count].norm[1] +objectsList[count].norm[2] * objectsList[count].norm[2];
+    temp [0] = 2 * (objectsList[count].org[0] - 0);
+    temp [1] = 2 * (objectsList[count].org[1] - 0);
+    temp [2] = 2 * (objectsList[count].org[2] - 0);
+    b = temp[0] * objectsList[count].norm[0] + temp[1] * objectsList[count].norm[1] + temp[2] * objectsList[count].norm[2];
+    temp[0] = objectsList[count].norm[0] - 0;
+    temp[1] = objectsList[count].norm[1] - 0;
+    temp[2] = objectsList[count].norm[2] - 0;
     
-
+    temp2[0] = objectsList[count].norm[0] - 0;
+    temp2[1] = objectsList[count].norm[1] - 0;
+    temp2[2] = objectsList[count].norm[2] - 0;
+    
+    c  = temp[0] * temp[0] + temp[1] * temp[1] + temp[2] * temp[2];
+    
+    t1 = -b + sqrt(b*b + - 4*a*c)/2*a;
+    t2 = b + sqrt(b*b + - 4*a*c)/2*a;
 }
 
 /* rayCast - takes a mouse x,y, coordinate, and casts a ray through that point
@@ -150,11 +169,6 @@ void rayCast(float x, float y)
 	objectsList[count].dir[0] = pFar[0] - pNear[0];
 	objectsList[count].dir[1] = pFar[1] - pNear[1];
 	objectsList[count].dir[2] = pFar[2] - pNear[2];
-    
-    if (objectsList[count].objectType == 2){
-        spehereRayTest(count, i);
-    }
-    else{
     objectsList[count].normalizeDirection();
     groundPlane = rayPlaneTest(count, i);
 	//update the position of the object to the intersection point
@@ -163,19 +177,19 @@ void rayCast(float x, float y)
         objectPos[1] = inter[1];
         objectPos[2] = inter[2];
         
-        if ((-0.25 + objectsList[count].translateX < objectPos[0] && objectPos[0] < 0.25 + objectsList[count].translateX && -0.25 + objectsList[count].translateZ < objectPos[2] && objectPos[2] < 0.25 + objectsList[count].translateZ && objectPos[1] < 0.25 + objectsList[count].translateY && -0.25 + objectsList[count].translateY < objectPos[1])){
-                hit = true;
-                targetObject = count;
-                objectsList[count].hit = true;
-                break;
+        if ((objectsList[count].min + objectsList[count].translateX < objectPos[0] && objectPos[0] < objectsList[count].max + objectsList[count].translateX && objectsList[count].min + objectsList[count].translateZ < objectPos[2] && objectPos[2] < objectsList[count].max + objectsList[count].translateZ && objectPos[1] < objectsList[count].max + objectsList[count].translateY && objectsList[count].min + objectsList[count].translateY < objectPos[1])){
+            hit = true;
+            targetObject = count;
+            objectsList[count].hit = true;
+            break;
         }
+
         else{
             hit = false;
             objectsList[count].hit = false;
         }
         
     
-    }
     }
     }
         if(hit == true){
@@ -210,6 +224,19 @@ void drawAxis()
 	glEnd();
 }
 
+void drawPlatform(){
+    //bottom
+    
+    glBegin(GL_QUADS);
+    glColor3f(0.5, 0, 0.3);
+    glVertex3f(-2.8,-0.3,2.8);
+    glVertex3f(2.8,-0.3,2.8);
+    glVertex3f(2.8,-0.3,-2.8);
+    glVertex3f(-2.8,-0.3,-2.8);
+    
+    glEnd();
+}
+
 /* display() - the OpenGL display function, this draws the screen
  *  it displays a spinning cube
  */
@@ -219,7 +246,7 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
+    gluLookAt(camera[0], camera[1], camera[2], 0, 0, 0, 0, 1, 0);
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize(10);
     glBegin(GL_POINTS);
@@ -235,7 +262,9 @@ void display()
         objectsList[x].drawObjects();
         glPopMatrix();
     }
-    drawAxis();
+    
+    drawPlatform();
+    
 	float m_amb[] = {0.33, 0.22, 0.03, 1.0};
 	float m_dif[] = {0.78, 0.57, 0.11, 1.0};
 	float m_spec[] = {0.99, 0.91, 0.81, 1.0};
@@ -449,6 +478,24 @@ void kbd(unsigned char key, int x, int y)
             }
         }
     }
+    
+    if (key == 'm'){
+        scale = 0.1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectScale(scale);
+            }
+        }
+    }
+    if (key == 'M'){
+        scale = -0.1;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].objectScale(scale);
+            }
+        }
+    }
+    
     //Change this to command save or something
     if(key == 's')
     {
@@ -516,8 +563,12 @@ void mouse(int btn, int state, int x, int y)
 	}
 	if(btn == GLUT_RIGHT_BUTTON)
 	{
-        mouseX = x;
-        mouseY = y;
+        for (int count = 0; count < numOfObjects;count++){
+            if (objectsList[count].hit == true){
+                objectsList[count].deleteObject();
+            }
+        }
+        
 	}
     
 	glFlush();
@@ -529,16 +580,16 @@ void processSpecialKeys(int key, int x, int y) {
     //Responsible for camera movement, press right to turn right, left for left, up for up and down for down
     switch(key) {
 		case GLUT_KEY_UP:
-            angZ = angZ + 1;
+            camera[1] +=+ 0.5;
             break;
 		case GLUT_KEY_DOWN :
-            angZ = angZ - 1;
+            camera[1] -= 0.5;
             break;
         case GLUT_KEY_LEFT:
-            angY = angY -1;
+            camera[0] -= 0.5;
             break;
         case GLUT_KEY_RIGHT:
-            angY = angY +1;
+            camera[0] += 0.5;
             break;
 	}
     
